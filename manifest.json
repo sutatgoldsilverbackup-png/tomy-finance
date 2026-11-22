@@ -1,0 +1,17 @@
+{
+  "name": "เลขาการเงิน",
+  "short_name": "เลขาการเงิน",
+  "description": "รายรับรายจ่าย ทรัพย์สิน หนี้ และตู้น้ำมันหยอดเหรียญ",
+  "lang": "th",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0F172A",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
