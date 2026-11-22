@@ -210,7 +210,9 @@ textarea.input { height: 96px; padding: 12px 14px; resize: vertical; }
 /* ============================================================
  * core.js — แกนกลางของแอป: เรียก API, cache, router, ตัวช่วย UI
  * ============================================================ */
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '1.5.0';
+const NEW_PIN_LENGTH = 4; // PIN ที่ตั้งใหม่ใช้ 4 หลัก
+const pinLen = () => Number(Store.get('pinLen', 6)); // ความยาว PIN ปัจจุบัน (PIN เก่า 6 หลัก)
 // ที่อยู่หลังบ้าน (Apps Script /exec) — เปิดเผยได้ เพราะต้องใส่ PIN ถูกก่อนจึงจะดึงข้อมูลได้
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzDCfQR0ZfnphyL5pQ02dJVp3OHln4YmU8t4hUoW93h5COgSsbS1rrktuXX6ThPD2AK/exec';
 const TH_MONTH_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
@@ -264,7 +266,7 @@ async function api(action, payload = {}) {
   try { j = await res.json(); } catch (e) { throw new Error('หลังบ้านตอบกลับผิดรูปแบบ (ตรวจสอบ URL /exec)'); }
   if (!j.ok) {
     // บัตรผ่านหมดอายุ/ถูกยกเลิก (เช่น เปลี่ยน PIN จากเครื่องอื่น) → กลับไปหน้าใส่ PIN
-    if (j.needLogin) { Store.del('token'); Store.del('key'); setTimeout(() => Lock.close(), 0); }
+    if (j.needLogin) { Store.del('token'); Store.del('key'); Store.del('hasPin'); setTimeout(() => Lock.close(), 0); }
     throw new Error(j.error || 'เกิดข้อผิดพลาด');
   }
   return j.data;
@@ -286,6 +288,7 @@ async function loadData(force) {
     Object.keys(localStorage).filter(k => k.indexOf('fa_boot_') === 0 && k !== 'fa_' + cacheKey).forEach(k => localStorage.removeItem(k));
     Store.set(cacheKey, d);
     Store.set('hasPin', !!d.settings.hasPin);
+    if (d.settings.pinLength) Store.set('pinLen', Number(d.settings.pinLength));
     Store.set('me', { nickname: d.settings.nickname || '', photoUrl: d.settings.photoUrl || '' });
     Logo.sync(d.settings.logoVer || '');
     if (d.settings.lockMinutes !== undefined && d.settings.lockMinutes !== '') Store.set('lockMin', Number(d.settings.lockMinutes));
@@ -1562,30 +1565,31 @@ const Lock = {
     // เครื่องใหม่ยังไม่รู้ว่าตั้ง PIN แล้วหรือยัง → ถามหลังบ้านก่อน
     if (Store.get('hasPin', null) === null) {
       main.innerHTML = '<div class="lock">' + Logo.html(88, 'aria-hidden="true"') + '<div class="s">กำลังเชื่อมต่อ…</div></div>';
-      api('ping').then(p => { Store.set('hasPin', !!p.hasPin); render(); })
+      api('ping').then(p => { Store.set('hasPin', !!p.hasPin); Store.set('pinLen', Number(p.pinLength || 6)); render(); })
         .catch(e => { main.innerHTML = '<div class="lock">' + Logo.html(88, 'aria-hidden="true"') + '<div class="err-text" style="text-align:center">' + esc(e.message) + '</div><button class="btn" id="lk_retry">ลองใหม่</button></div>'; $('#lk_retry', main).onclick = () => render(); });
       return;
     }
     const setMode = !Store.get('hasPin', false);
     const hasToken = !!(Store.get('token', '') || Store.get('key', ''));
     let pin = '', first = '';
-    const title = () => setMode ? (first ? 'ใส่ PIN เดิมอีกครั้งเพื่อยืนยัน' : 'ตั้ง PIN 6 หลัก สำหรับเข้าแอป') : 'ใส่ PIN 6 หลักเพื่อเข้าแอป';
+    const LEN = setMode ? NEW_PIN_LENGTH : pinLen();
+    const title = () => setMode ? (first ? 'ใส่ PIN เดิมอีกครั้งเพื่อยืนยัน' : 'ตั้ง PIN ' + LEN + ' หลัก สำหรับเข้าแอป') : 'ใส่ PIN ' + LEN + ' หลักเพื่อเข้าแอป';
     main.innerHTML = '<div class="lock">' + Logo.html(88, 'aria-hidden="true"') +
       '<div style="text-align:center"><div style="font-size:22px;font-weight:700">สวัสดีครับ' + (me.nickname ? ' ' + esc(me.nickname) : '') + '</div><div class="s" id="lk_msg">' + title() + '</div></div>' +
-      '<div class="dots" id="lk_dots" role="img" aria-label="ใส่แล้ว 0 จาก 6 หลัก">' + '<span></span>'.repeat(6) + '</div>' +
+      '<div class="dots" id="lk_dots" role="img" aria-label="ใส่แล้ว 0 จาก ' + LEN + ' หลัก">' + '<span></span>'.repeat(LEN) + '</div>' +
       '<div class="keypad">' + '123456789'.split('').map(k => '<button type="button" data-k="' + k + '">' + k + '</button>').join('') +
       (!setMode && hasToken && Bio.enabled() ? '<button type="button" class="k-bio" id="lk_bio" aria-label="ปลดล็อกด้วยลายนิ้วมือ/ใบหน้า"><span class="ms" aria-hidden="true" style="font-size:34px">fingerprint</span></button>' : '<span></span>') +
       '<button type="button" data-k="0">0</button><button type="button" class="k-del" id="lk_del" aria-label="ลบ"><span class="ms" aria-hidden="true" style="font-size:30px">backspace</span></button></div>' +
       '<div class="s" style="margin-top:auto;text-align:center">ลืม PIN? เปิดหน้า Apps Script แล้วรันฟังก์ชัน resetPin</div></div>';
     const dots = $('#lk_dots', main), msg = $('#lk_msg', main);
-    const draw = () => { $$('span', dots).forEach((s, i) => s.classList.toggle('f', i < pin.length)); dots.setAttribute('aria-label', 'ใส่แล้ว ' + pin.length + ' จาก 6 หลัก'); };
+    const draw = () => { $$('span', dots).forEach((s, i) => s.classList.toggle('f', i < pin.length)); dots.setAttribute('aria-label', 'ใส่แล้ว ' + pin.length + ' จาก ' + LEN + ' หลัก'); };
     const fail = (text) => { msg.textContent = text; msg.className = 'err-text'; dots.classList.remove('shake'); void dots.offsetWidth; dots.classList.add('shake'); pin = ''; draw(); };
     const done = async () => {
       if (setMode) {
         if (!first) { first = pin; pin = ''; draw(); msg.textContent = title(); return; }
         if (pin !== first) { first = ''; fail('PIN สองครั้งไม่ตรงกัน เริ่มตั้งใหม่'); return; }
         showLoading('กำลังตั้ง PIN…');
-        try { const r = await api('setupPin', { pin }); Store.set('token', r.token); Store.set('hasPin', true); Lock.open(); toast('ตั้ง PIN แล้ว', 'ok'); render(); } catch (e) { first = ''; fail(e.message); } finally { hideLoading(); }
+        try { const r = await api('setupPin', { pin }); Store.set('token', r.token); Store.set('hasPin', true); Store.set('pinLen', LEN); Lock.open(); toast('ตั้ง PIN แล้ว', 'ok'); render(); } catch (e) { first = ''; fail(e.message); } finally { hideLoading(); }
         return;
       }
       showLoading('กำลังตรวจสอบ…');
@@ -1596,7 +1600,7 @@ const Lock = {
         else fail(r.locked ? r.message : 'PIN ไม่ถูกต้อง · เหลือ ' + r.triesLeft + ' ครั้ง');
       } catch (e) { fail(e.message); } finally { hideLoading(); }
     };
-    $$('[data-k]', main).forEach(b => b.onclick = () => { if (pin.length < 6) { pin += b.dataset.k; draw(); if (pin.length === 6) done(); } });
+    $$('[data-k]', main).forEach(b => b.onclick = () => { if (pin.length < LEN) { pin += b.dataset.k; draw(); if (pin.length === LEN) done(); } });
     $('#lk_del', main).onclick = () => { pin = pin.slice(0, -1); draw(); };
     const bio = $('#lk_bio', main);
     if (bio) {
@@ -1611,7 +1615,7 @@ async function confirmIdentity() {
   if (Bio.enabled() && await Bio.verify()) return true;
   return new Promise(resolve => {
     sheet('<span class="ms" aria-hidden="true" style="font-size:56px;align-self:center">lock</span><h2 style="text-align:center">ยืนยันตัวตนเพื่อดูข้อมูล</h2>' +
-      '<input class="input" id="cf_pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" aria-label="PIN 6 หลัก" placeholder="ใส่ PIN 6 หลัก" style="text-align:center;font-size:24px;letter-spacing:8px">' +
+      '<input class="input" id="cf_pin" type="password" inputmode="numeric" maxlength="' + pinLen() + '" autocomplete="off" aria-label="PIN ' + pinLen() + ' หลัก" placeholder="ใส่ PIN ' + pinLen() + ' หลัก" style="text-align:center;font-size:24px;letter-spacing:8px">' +
       '<div class="err-text" id="cf_err"></div><button class="btn" id="cf_ok">ยืนยัน</button><button class="btn ghost" data-close>ยกเลิก</button>', (el, close) => {
       $$('[data-close]', el).forEach(b => b.addEventListener('click', () => resolve(false)));
       const ok = async () => {
@@ -1621,7 +1625,7 @@ async function confirmIdentity() {
         } catch (e) { $('#cf_err', el).textContent = e.message; }
       };
       $('#cf_ok', el).onclick = ok;
-      $('#cf_pin', el).addEventListener('input', e => { if (e.target.value.length === 6) ok(); });
+      $('#cf_pin', el).addEventListener('input', e => { if (e.target.value.length === pinLen()) ok(); });
     });
   });
 }
@@ -1797,12 +1801,13 @@ route('settings', {
       if (Bio.enabled()) { if (await confirmBox('ปิดการสแกนนิ้ว/ใบหน้าในเครื่องนี้?', 'ปิด')) { Store.del('cred'); render(true); toast('ปิดแล้ว'); } return; }
       try { await Bio.register(); toast('เปิดใช้สแกนนิ้ว/ใบหน้าแล้ว', 'ok'); render(true); } catch (e) { toast(e.message || 'ตั้งค่าไม่สำเร็จ', 'err'); }
     };
-    $('#st_pin', el).onclick = () => sheet('<h2>เปลี่ยน PIN</h2>' + field('op', 'PIN เดิม', '', 'type="password" inputmode="numeric" maxlength="6"') + field('np', 'PIN ใหม่ 6 หลัก', '', 'type="password" inputmode="numeric" maxlength="6"') + field('np2', 'PIN ใหม่อีกครั้ง', '', 'type="password" inputmode="numeric" maxlength="6"') +
+    $('#st_pin', el).onclick = () => sheet('<h2>เปลี่ยน PIN</h2>' + field('op', 'PIN เดิม (' + pinLen() + ' หลัก)', '', 'type="password" inputmode="numeric" maxlength="' + pinLen() + '"') + field('np', 'PIN ใหม่ ' + NEW_PIN_LENGTH + ' หลัก', '', 'type="password" inputmode="numeric" maxlength="' + NEW_PIN_LENGTH + '"') + field('np2', 'PIN ใหม่อีกครั้ง', '', 'type="password" inputmode="numeric" maxlength="' + NEW_PIN_LENGTH + '"') +
       '<button class="btn" id="cp_s">บันทึก</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
       $('#cp_s', sh).onclick = (e) => busy(e.currentTarget, async () => {
         if ($('#np', sh).value !== $('#np2', sh).value) throw new Error('PIN ใหม่สองช่องไม่ตรงกัน');
         const r = await api('setPin', { pin: $('#np', sh).value, oldPin: $('#op', sh).value });
         if (r.token) Store.set('token', r.token); // เครื่องอื่นจะต้องใส่ PIN ใหม่
+        Store.set('pinLen', NEW_PIN_LENGTH);
         close();
       }, 'เปลี่ยน PIN แล้ว');
     });
