@@ -210,7 +210,9 @@ textarea.input { height: 96px; padding: 12px 14px; resize: vertical; }
 /* ============================================================
  * core.js — แกนกลางของแอป: เรียก API, cache, router, ตัวช่วย UI
  * ============================================================ */
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '1.4.0';
+// ที่อยู่หลังบ้าน (Apps Script /exec) — เปิดเผยได้ เพราะต้องใส่ PIN ถูกก่อนจึงจะดึงข้อมูลได้
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzDCfQR0ZfnphyL5pQ02dJVp3OHln4YmU8t4hUoW93h5COgSsbS1rrktuXX6ThPD2AK/exec';
 const TH_MONTH_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const TH_MONTH_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 
@@ -249,18 +251,22 @@ const Store = {
 
 /* ===== เรียกหลังบ้าน ===== */
 async function api(action, payload = {}) {
-  const url = Store.get('url', ''), key = Store.get('key', '');
-  if (!url || !key) throw new Error('ยังไม่ได้ตั้งค่าการเชื่อมต่อ');
+  const url = Store.get('url', '') || BACKEND_URL;
+  const key = Store.get('key', ''), token = Store.get('token', '');
   let res;
   try {
     // ส่งเป็น text/plain (ค่าเริ่มต้น) เพื่อไม่ให้ติด CORS preflight ของ Apps Script
-    res = await fetch(url, { method: 'POST', body: JSON.stringify({ key, action, payload }) });
+    res = await fetch(url, { method: 'POST', body: JSON.stringify({ key, token, action, payload }) });
   } catch (e) {
     throw new Error('เชื่อมต่อไม่ได้ ตรวจสอบอินเทอร์เน็ต');
   }
   let j;
   try { j = await res.json(); } catch (e) { throw new Error('หลังบ้านตอบกลับผิดรูปแบบ (ตรวจสอบ URL /exec)'); }
-  if (!j.ok) throw new Error(j.error || 'เกิดข้อผิดพลาด');
+  if (!j.ok) {
+    // บัตรผ่านหมดอายุ/ถูกยกเลิก (เช่น เปลี่ยน PIN จากเครื่องอื่น) → กลับไปหน้าใส่ PIN
+    if (j.needLogin) { Store.del('token'); Store.del('key'); setTimeout(() => Lock.close(), 0); }
+    throw new Error(j.error || 'เกิดข้อผิดพลาด');
+  }
   return j.data;
 }
 
@@ -282,6 +288,7 @@ async function loadData(force) {
     Store.set('hasPin', !!d.settings.hasPin);
     Store.set('me', { nickname: d.settings.nickname || '', photoUrl: d.settings.photoUrl || '' });
     Logo.sync(d.settings.logoVer || '');
+    if (d.settings.lockMinutes !== undefined && d.settings.lockMinutes !== '') Store.set('lockMin', Number(d.settings.lockMinutes));
     return d;
   }).finally(() => { App.loading = null; });
   return App.loading;
@@ -317,7 +324,6 @@ function isFormPage() { const r = Routes[parseHash().name]; return r && r.form; 
 
 async function render(silent) {
   const main = $('#main'), nav = $('#nav');
-  if (!Store.get('url', '') || !Store.get('key', '')) { nav.hidden = true; return Routes.setup.show(main); }
   if (!Lock.isOpen()) { nav.hidden = true; return Lock.show(main); }
   const { name, params } = parseHash();
   const r = Routes[name] || Routes.home;
@@ -682,6 +688,8 @@ Routes.setup = {
 document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('click', () => Lock.touch(), true);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !Lock.isOpen()) render(); });
+  // เปิดแอปค้างไว้จนครบเวลา → ล็อกเอง
+  setInterval(() => { if (!Lock.isOpen() && !document.querySelector('.lock')) render(); }, 30000);
   render();
 });
 
@@ -1531,24 +1539,42 @@ const Bio = {
 };
 
 /* ===== ล็อกแอป ===== */
-const IDLE_LOCK_MS = 5 * 60 * 1000; // ไม่ได้ใช้ 5 นาที ล็อกอัตโนมัติ
+// ล็อกอัตโนมัติเมื่อไม่ได้ใช้ตามเวลาที่ตั้ง (นาที) · 0 = ไม่ล็อกอัตโนมัติ · ค่าเริ่มต้น 60 นาที
+const LOCK_CHOICES = [[5, '5 นาที'], [30, '30 นาที'], [60, '1 ชั่วโมง'], [1440, '1 วัน'], [0, 'ไม่ล็อกอัตโนมัติ']];
 const Lock = {
-  isOpen() { const t = Number(sessionStorage.getItem('fa_unlock') || 0); return t && Date.now() - t < IDLE_LOCK_MS; },
-  touch() { if (Lock.isOpen()) sessionStorage.setItem('fa_unlock', String(Date.now())); },
-  open() { sessionStorage.setItem('fa_unlock', String(Date.now())); },
-  close() { sessionStorage.removeItem('fa_unlock'); render(); },
+  minutes() { const m = Store.get('lockMin', 60); return Number.isFinite(m) ? m : 60; },
+  label() { const m = Lock.minutes(); const c = LOCK_CHOICES.find(x => x[0] === m); return c ? c[1] : m + ' นาที'; },
+  // เข้าได้ต้องมีบัตรผ่าน (หรือ API KEY เดิม) และยังไม่หมดเวลา — จำข้ามการปิด/เปิดแอป
+  isOpen() {
+    if (!Store.get('token', '') && !Store.get('key', '')) return false;
+    const last = Number(Store.get('lastActive', 0));
+    if (!last) return false;
+    const m = Lock.minutes();
+    return m === 0 || Date.now() - last < m * 60000;
+  },
+  touch() { if (Lock.isOpen()) Store.set('lastActive', Date.now()); },
+  open() { Store.set('lastActive', Date.now()); },
+  close() { Store.del('lastActive'); render(); },
 
   show(main) {
     main.className = '';
     const me = Store.get('me', {});
+    // เครื่องใหม่ยังไม่รู้ว่าตั้ง PIN แล้วหรือยัง → ถามหลังบ้านก่อน
+    if (Store.get('hasPin', null) === null) {
+      main.innerHTML = '<div class="lock">' + Logo.html(88, 'aria-hidden="true"') + '<div class="s">กำลังเชื่อมต่อ…</div></div>';
+      api('ping').then(p => { Store.set('hasPin', !!p.hasPin); render(); })
+        .catch(e => { main.innerHTML = '<div class="lock">' + Logo.html(88, 'aria-hidden="true"') + '<div class="err-text" style="text-align:center">' + esc(e.message) + '</div><button class="btn" id="lk_retry">ลองใหม่</button></div>'; $('#lk_retry', main).onclick = () => render(); });
+      return;
+    }
     const setMode = !Store.get('hasPin', false);
+    const hasToken = !!(Store.get('token', '') || Store.get('key', ''));
     let pin = '', first = '';
     const title = () => setMode ? (first ? 'ใส่ PIN เดิมอีกครั้งเพื่อยืนยัน' : 'ตั้ง PIN 6 หลัก สำหรับเข้าแอป') : 'ใส่ PIN 6 หลักเพื่อเข้าแอป';
     main.innerHTML = '<div class="lock">' + Logo.html(88, 'aria-hidden="true"') +
       '<div style="text-align:center"><div style="font-size:22px;font-weight:700">สวัสดีครับ' + (me.nickname ? ' ' + esc(me.nickname) : '') + '</div><div class="s" id="lk_msg">' + title() + '</div></div>' +
       '<div class="dots" id="lk_dots" role="img" aria-label="ใส่แล้ว 0 จาก 6 หลัก">' + '<span></span>'.repeat(6) + '</div>' +
       '<div class="keypad">' + '123456789'.split('').map(k => '<button type="button" data-k="' + k + '">' + k + '</button>').join('') +
-      (!setMode && Bio.enabled() ? '<button type="button" class="k-bio" id="lk_bio" aria-label="ปลดล็อกด้วยลายนิ้วมือ/ใบหน้า"><span class="ms" aria-hidden="true" style="font-size:34px">fingerprint</span></button>' : '<span></span>') +
+      (!setMode && hasToken && Bio.enabled() ? '<button type="button" class="k-bio" id="lk_bio" aria-label="ปลดล็อกด้วยลายนิ้วมือ/ใบหน้า"><span class="ms" aria-hidden="true" style="font-size:34px">fingerprint</span></button>' : '<span></span>') +
       '<button type="button" data-k="0">0</button><button type="button" class="k-del" id="lk_del" aria-label="ลบ"><span class="ms" aria-hidden="true" style="font-size:30px">backspace</span></button></div>' +
       '<div class="s" style="margin-top:auto;text-align:center">ลืม PIN? เปิดหน้า Apps Script แล้วรันฟังก์ชัน resetPin</div></div>';
     const dots = $('#lk_dots', main), msg = $('#lk_msg', main);
@@ -1559,13 +1585,14 @@ const Lock = {
         if (!first) { first = pin; pin = ''; draw(); msg.textContent = title(); return; }
         if (pin !== first) { first = ''; fail('PIN สองครั้งไม่ตรงกัน เริ่มตั้งใหม่'); return; }
         showLoading('กำลังตั้ง PIN…');
-        try { await api('setPin', { pin }); Store.set('hasPin', true); Lock.open(); toast('ตั้ง PIN แล้ว', 'ok'); render(); } catch (e) { first = ''; fail(e.message); } finally { hideLoading(); }
+        try { const r = await api('setupPin', { pin }); Store.set('token', r.token); Store.set('hasPin', true); Lock.open(); toast('ตั้ง PIN แล้ว', 'ok'); render(); } catch (e) { first = ''; fail(e.message); } finally { hideLoading(); }
         return;
       }
       showLoading('กำลังตรวจสอบ…');
       try {
-        const r = await api('verifyPin', { pin });
-        if (r.ok) { Lock.open(); render(); }
+        const r = await api('login', { pin });
+        if (r.noPin) { Store.set('hasPin', false); render(); return; }
+        if (r.ok) { Store.set('token', r.token); Lock.open(); render(); }
         else fail(r.locked ? r.message : 'PIN ไม่ถูกต้อง · เหลือ ' + r.triesLeft + ' ครั้ง');
       } catch (e) { fail(e.message); } finally { hideLoading(); }
     };
@@ -1757,11 +1784,12 @@ route('settings', {
       '<div class="box">' +
       row({ icon: 'fingerprint', title: 'สแกนนิ้ว/ใบหน้า', sub: Bio.enabled() ? 'เปิดใช้อยู่ในเครื่องนี้ · แตะเพื่อปิด' : (Bio.supported() ? 'แตะเพื่อเปิดใช้' : 'เครื่องนี้ไม่รองรับ'), attrs: 'id="st_bio"' }) +
       row({ icon: 'password', title: 'เปลี่ยน PIN', attrs: 'id="st_pin"' }) +
+      row({ icon: 'timer', title: 'ล็อกแอปอัตโนมัติ', sub: 'เมื่อไม่ได้ใช้ ' + Lock.label(), attrs: 'id="st_autolock"' }) +
       row({ icon: 'lock', title: 'ล็อกแอปตอนนี้', attrs: 'id="st_lock"' }) + '</div>' +
       '<div class="box">' +
       row({ icon: 'auto_awesome', title: 'Gemini อ่านสลิป', sub: s.hasGemini ? 'พร้อมใช้งาน' : 'ยังไม่ได้ตั้งค่า (รัน setGeminiKey ใน Apps Script)' }) +
       row({ icon: 'sync', title: 'โหลดข้อมูลใหม่ทั้งหมด', sub: 'ใช้เมื่อแก้ข้อมูลใน Google Sheet โดยตรง', attrs: 'id="st_reload"' }) +
-      row({ icon: 'link', title: 'การเชื่อมต่อหลังบ้าน', sub: 'เปลี่ยน URL หรือรหัสเชื่อมต่อ', attrs: 'id="st_conn"' }) + '</div>' +
+      row({ icon: 'logout', title: 'ออกจากระบบเครื่องนี้', sub: 'ครั้งหน้าต้องใส่ PIN ใหม่', attrs: 'id="st_conn"' }) + '</div>' +
       '<div class="s" style="text-align:center">เวอร์ชันหน้าเว็บ ' + APP_VERSION + (App.data ? ' · หลังบ้าน ' + esc(App.data.version) : '') + '</div>';
   },
   mount(p, el) {
@@ -1773,7 +1801,9 @@ route('settings', {
       '<button class="btn" id="cp_s">บันทึก</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
       $('#cp_s', sh).onclick = (e) => busy(e.currentTarget, async () => {
         if ($('#np', sh).value !== $('#np2', sh).value) throw new Error('PIN ใหม่สองช่องไม่ตรงกัน');
-        await api('setPin', { pin: $('#np', sh).value, oldPin: $('#op', sh).value }); close();
+        const r = await api('setPin', { pin: $('#np', sh).value, oldPin: $('#op', sh).value });
+        if (r.token) Store.set('token', r.token); // เครื่องอื่นจะต้องใส่ PIN ใหม่
+        close();
       }, 'เปลี่ยน PIN แล้ว');
     });
     $('#st_lock', el).onclick = () => Lock.close();
@@ -1807,7 +1837,17 @@ route('settings', {
       await busy(btn, async () => { await api('saveLogo', { dataUrl: '' }); Logo.set('', ''); render(true); }, 'กลับไปใช้โลโก้เดิมแล้ว');
     };
     $('#st_reload', el).onclick = async () => { try { showLoading('กำลังโหลดใหม่…'); await refresh(); toast('โหลดใหม่แล้ว', 'ok'); go('#/home'); } catch (e) { toast(e.message, 'err'); } finally { hideLoading(); } };
-    $('#st_conn', el).onclick = async () => { if (await confirmBox('ออกจากการเชื่อมต่อ แล้วใส่ URL/รหัสใหม่?', 'ตกลง')) { Store.del('key'); App.data = null; render(); } };
+    $('#st_conn', el).onclick = async () => { if (await confirmBox('ออกจากระบบเครื่องนี้? ครั้งหน้าต้องใส่ PIN ใหม่', 'ออกจากระบบ', true)) { Store.del('token'); Store.del('key'); Store.del('lastActive'); render(); } };
+    // ตั้งเวลาล็อกอัตโนมัติ (บันทึกไว้หลังบ้าน ทุกเครื่องใช้ค่าเดียวกัน)
+    $('#st_autolock', el).onclick = () => sheet('<h2>ล็อกแอปอัตโนมัติ</h2><div class="s">เมื่อไม่ได้ใช้แอปนานเท่านี้ ต้องใส่ PIN หรือสแกนนิ้วใหม่</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px">' + LOCK_CHOICES.map(([m, t]) => '<button type="button" class="chip' + (m === Lock.minutes() ? ' on' : '') + '" data-min="' + m + '">' + t + '</button>').join('') + '</div>' +
+      '<button type="button" class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
+      $$('[data-min]', sh).forEach(b => b.onclick = () => busy(b, async () => {
+        const m = Number(b.dataset.min);
+        await api('saveSettings', { values: { lockMinutes: m } });
+        Store.set('lockMin', m); Lock.open(); close(); render(true);
+      }, 'ตั้งค่าแล้ว').catch(() => {}));
+    });
   }
 });
 </script>
