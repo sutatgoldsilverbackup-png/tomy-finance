@@ -9,6 +9,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="เลขาการเงิน">
 <title>เลขาการเงิน</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
@@ -66,6 +69,20 @@ h2 { margin: 0; font-size: 17px; font-weight: 700; }
 .btn.danger { background: #fff; color: var(--out); min-height: 48px; font-size: 16px; }
 .btn.sm { min-height: 44px; font-size: 15px; width: auto; border-radius: 12px; }
 .btn:disabled { opacity: .55; }
+/* ===== โลโก้แอป + หน้าครอป ===== */
+.applogo { border-radius: 22%; object-fit: cover; flex: none; display: block; }
+.crop { position: fixed; inset: 0; z-index: 60; background: var(--ink); color: #fff; display: flex; flex-direction: column; }
+.crop-top { height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; }
+.crop-top h2 { margin: 0; font-size: 19px; }
+.crop-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 0 24px; }
+.crop-frame { position: relative; touch-action: none; cursor: grab; }
+.crop-frame canvas { display: block; border-radius: 22%; }
+.crop-frame::after { content: ''; position: absolute; inset: 0; border: 3px solid #fff; border-radius: 22%; pointer-events: none; }
+.crop input[type=range] { flex: 1; accent-color: #fff; height: 32px; }
+.crop .chip { flex: 1; background: transparent; color: #fff; border-color: #475569; }
+.crop .chip.on { background: #fff; color: var(--ink); border-color: #fff; }
+.crop-foot { padding: 16px; display: flex; gap: 10px; }
+.crop-foot .ghost { background: transparent; color: #fff; border-color: #475569; }
 .btn2 { min-height: 84px; border: 1.5px solid #CBD5E1; border-radius: 14px; background: #fff; color: var(--ink); font-weight: 700; font-size: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-decoration: none; text-align: center; cursor: pointer; }
 .icb { width: 48px; height: 48px; border-radius: 24px; border: 0; background: transparent; color: var(--ink2); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; cursor: pointer; flex: none; position: relative; }
 .icb.outline { background: #fff; border: 1px solid var(--line); }
@@ -193,7 +210,7 @@ textarea.input { height: 96px; padding: 12px 14px; resize: vertical; }
 /* ============================================================
  * core.js — แกนกลางของแอป: เรียก API, cache, router, ตัวช่วย UI
  * ============================================================ */
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.3.0';
 const TH_MONTH_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const TH_MONTH_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 
@@ -264,6 +281,7 @@ async function loadData(force) {
     Store.set(cacheKey, d);
     Store.set('hasPin', !!d.settings.hasPin);
     Store.set('me', { nickname: d.settings.nickname || '', photoUrl: d.settings.photoUrl || '' });
+    Logo.sync(d.settings.logoVer || '');
     return d;
   }).finally(() => { App.loading = null; });
   return App.loading;
@@ -428,6 +446,134 @@ function avatarHtml(size, photoUrl, attrs = '') {
 }
 function aiTag() { return '<span class="ai-tag"><span class="ms" aria-hidden="true">auto_awesome</span>จากสลิป</span>'; }
 
+/* ===== โลโก้แอป ===== */
+// เก็บรูปโลโก้ไว้ในเครื่อง (localStorage) ใช้ที่หน้าล็อก ไอคอนแท็บ และไอคอน iPhone
+// ถ้าเปลี่ยนจากเครื่องอื่น ระบบจะเห็นเลข logoVer ไม่ตรง แล้วดึงรูปใหม่มาเอง
+const Logo = {
+  DEFAULT: 'icon-512.png',
+  src() { return Store.get('logo', '') || Logo.DEFAULT; },
+  isCustom() { return !!Store.get('logo', ''); },
+  html(size, attrs = '') { return '<img class="applogo" src="' + esc(Logo.src()) + '" alt="" width="' + size + '" height="' + size + '" style="width:' + size + 'px;height:' + size + 'px" ' + attrs + '>'; },
+  // ตั้งไอคอนแท็บ + ไอคอน iPhone ให้ตรงกับโลโก้ปัจจุบัน
+  apply() {
+    const src = Logo.src();
+    [['icon', src], ['apple-touch-icon', Logo.isCustom() ? src : 'apple-touch-icon.png']].forEach(([rel, href]) => {
+      let l = document.querySelector('link[rel="' + rel + '"]');
+      if (!l) { l = document.createElement('link'); l.rel = rel; document.head.appendChild(l); }
+      l.href = href;
+    });
+  },
+  set(dataUrl, ver) {
+    if (dataUrl) Store.set('logo', dataUrl); else Store.del('logo');
+    Store.set('logoVer', ver || '');
+    Logo.apply();
+  },
+  async sync(ver) {
+    if (ver === Store.get('logoVer', '')) return;
+    if (!ver) { Logo.set('', ''); return; }
+    try { const r = await api('getLogo'); Logo.set(r.dataUrl, r.logoVer); } catch (e) { /* ลองใหม่ครั้งหน้า */ }
+  }
+};
+
+// วาดรูปลงกรอบสี่เหลี่ยมจัตุรัสตามค่าที่ผู้ใช้ปรับ (ใช้ทั้งตอนแสดงตัวอย่างและตอนสร้างไฟล์จริง)
+function drawLogo(ctx, size, img, st) {
+  const k = size / st.frame;
+  ctx.save();
+  ctx.fillStyle = st.bg; ctx.fillRect(0, 0, size, size);
+  ctx.translate(size / 2 + st.x * k, size / 2 + st.y * k);
+  ctx.rotate(st.rot * Math.PI / 2);
+  const sc = st.base * st.zoom * k;
+  ctx.drawImage(img, -img.naturalWidth * sc / 2, -img.naturalHeight * sc / 2, img.naturalWidth * sc, img.naturalHeight * sc);
+  ctx.restore();
+}
+
+// เปิดหน้าปรับโลโก้ (ลาก/ซูม/หมุน/เลือกพื้นหลัง) คืนค่า dataUrl ขนาด 512px หรือ null ถ้ายกเลิก
+function cropLogo(file) {
+  return new Promise(async (resolve) => {
+    let img;
+    try {
+      const src = await readAsDataUrl(file);
+      img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('เปิดรูปไม่ได้')); i.src = src; });
+    } catch (e) { toast(e.message, 'err'); return resolve(null); }
+
+    const frame = Math.min(300, window.innerWidth - 48);
+    // สีพื้นหลังแบบ "เดิม" = สีมุมซ้ายบนของรูป
+    const probe = document.createElement('canvas'); probe.width = probe.height = 1;
+    probe.getContext('2d').drawImage(img, 0, 0, 1, 1, 0, 0, 1, 1);
+    const px = probe.getContext('2d').getImageData(0, 0, 1, 1).data;
+    const bgs = { orig: 'rgb(' + px[0] + ',' + px[1] + ',' + px[2] + ')', white: '#FFFFFF', navy: '#0F172A' };
+    const st = { frame, x: 0, y: 0, zoom: 1, rot: 0, bg: bgs.orig, base: 1 };
+    const fitBase = () => { const w = st.rot % 2 ? img.naturalHeight : img.naturalWidth, h = st.rot % 2 ? img.naturalWidth : img.naturalHeight; st.base = Math.max(frame / w, frame / h); };
+    fitBase();
+
+    const ov = document.createElement('div');
+    ov.className = 'crop'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+    ov.innerHTML = '<div class="crop-top"><button type="button" class="icb" style="color:#fff" id="cr_x" aria-label="ยกเลิก"><span class="ms" aria-hidden="true">close</span></button><h2>ปรับโลโก้</h2><span style="width:48px"></span></div>' +
+      '<div class="crop-body"><div class="crop-frame" id="cr_f"><canvas id="cr_c" width="' + frame * 2 + '" height="' + frame * 2 + '" style="width:' + frame + 'px;height:' + frame + 'px"></canvas></div>' +
+      '<div class="s" style="color:#CBD5E1;text-align:center">ลากรูปเพื่อเลื่อน · ถ่างนิ้วเพื่อซูม<br>กรอบขาว = ส่วนที่จะเป็นไอคอน</div>' +
+      '<div class="row-flex" style="width:100%;max-width:340px"><span class="ms" aria-hidden="true">zoom_out</span><input type="range" id="cr_z" min="0.5" max="4" step="0.01" value="1" aria-label="ซูม"><span class="ms" aria-hidden="true">zoom_in</span></div>' +
+      '<div class="row-flex" style="width:100%;max-width:340px" role="group" aria-label="สีพื้นหลัง"><button type="button" class="chip on" data-bg="orig">พื้นหลังเดิม</button><button type="button" class="chip" data-bg="white">ขาว</button><button type="button" class="chip" data-bg="navy">น้ำเงินเข้ม</button></div></div>' +
+      '<div class="crop-foot"><button type="button" class="btn ghost" style="flex:1" id="cr_r"><span class="ms" aria-hidden="true">rotate_right</span>หมุน</button><button type="button" class="btn" style="flex:2;background:var(--in)" id="cr_ok"><span class="ms" aria-hidden="true">check</span>ใช้รูปนี้</button></div>';
+    document.body.appendChild(ov);
+
+    const cv = $('#cr_c', ov), ctx = cv.getContext('2d'), zr = $('#cr_z', ov);
+    const paint = () => drawLogo(ctx, frame * 2, img, st);
+    paint();
+    const close = (val) => { ov.remove(); resolve(val); };
+
+    // ลากด้วยนิ้วเดียว / ถ่างสองนิ้วเพื่อซูม
+    const pts = new Map(); let pinch = null;
+    const f = $('#cr_f', ov);
+    f.addEventListener('pointerdown', e => { f.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: st.zoom }; } });
+    f.addEventListener('pointermove', e => {
+      const prev = pts.get(e.pointerId); if (!prev) return;
+      const cur = { x: e.clientX, y: e.clientY };
+      pts.set(e.pointerId, cur);
+      if (pts.size === 2 && pinch) {
+        const [a, b] = [...pts.values()];
+        st.zoom = Math.min(4, Math.max(0.5, pinch.z * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d)); zr.value = st.zoom;
+      } else if (pts.size === 1) { st.x += cur.x - prev.x; st.y += cur.y - prev.y; }
+      paint();
+    });
+    const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null; };
+    f.addEventListener('pointerup', up); f.addEventListener('pointercancel', up);
+    f.addEventListener('wheel', e => { e.preventDefault(); st.zoom = Math.min(4, Math.max(0.5, st.zoom * (e.deltaY < 0 ? 1.08 : 0.92))); zr.value = st.zoom; paint(); }, { passive: false });
+
+    zr.oninput = () => { st.zoom = +zr.value; paint(); };
+    $$('[data-bg]', ov).forEach(b => b.onclick = () => { $$('[data-bg]', ov).forEach(x => x.classList.toggle('on', x === b)); st.bg = bgs[b.dataset.bg]; paint(); });
+    $('#cr_r', ov).onclick = () => { st.rot = (st.rot + 1) % 4; const t = st.x; st.x = -st.y; st.y = t; fitBase(); paint(); };
+    $('#cr_x', ov).onclick = () => close(null);
+    $('#cr_ok', ov).onclick = () => {
+      const out = document.createElement('canvas'); out.width = out.height = 512;
+      drawLogo(out.getContext('2d'), 512, img, st);
+      close(out.toDataURL('image/jpeg', 0.9));
+    };
+  });
+}
+
+// สร้างไฟล์ไอคอน 3 ขนาดจากโลโก้ปัจจุบัน แล้วดาวน์โหลดทีละไฟล์
+async function downloadIconSet() {
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('เปิดโลโก้ไม่ได้')); i.src = Logo.src(); });
+  const files = [['icon-512.png', 512], ['icon-192.png', 192], ['apple-touch-icon.png', 180]];
+  for (const [name, size] of files) {
+    const c = document.createElement('canvas'); c.width = c.height = size;
+    c.getContext('2d').drawImage(img, 0, 0, size, size);
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    await new Promise(r => setTimeout(r, 600)); // เว้นจังหวะ ให้เบราว์เซอร์ยอมโหลดหลายไฟล์
+  }
+}
+
+// ลิงก์หน้าอัปโหลดของ repo นี้บน GitHub (เดาจากที่อยู่เว็บ เช่น user.github.io/repo/)
+function githubUploadUrl() {
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/);
+  const repo = location.pathname.split('/').filter(Boolean)[0];
+  return m && repo ? 'https://github.com/' + m[1] + '/' + repo + '/upload/main' : 'https://github.com';
+}
+
 /* ===== รูปภาพ ===== */
 function pickFile({ camera = false, accept = 'image/*', multiple = false } = {}) {
   return new Promise(resolve => {
@@ -512,7 +658,7 @@ Routes.setup = {
   show(main) {
     main.className = '';
     main.innerHTML = '<div style="padding-top:24px;display:flex;flex-direction:column;gap:16px">' +
-      '<span class="ms" aria-hidden="true" style="font-size:48px">account_balance_wallet</span>' +
+      Logo.html(64, 'aria-hidden="true"') +
       '<h1 style="font-size:26px">เชื่อมต่อหลังบ้าน</h1><div class="s">ใส่ครั้งเดียว ระบบจะจำไว้ในเครื่องนี้</div>' +
       field('su_url', 'URL หลังบ้าน (ลงท้าย /exec)', Store.get('url', ''), 'inputmode="url" placeholder="https://script.google.com/macros/s/.../exec"') +
       field('su_key', 'รหัสเชื่อมต่อ (API KEY)', Store.get('key', ''), 'autocomplete="off"') +
@@ -1398,7 +1544,7 @@ const Lock = {
     const setMode = !Store.get('hasPin', false);
     let pin = '', first = '';
     const title = () => setMode ? (first ? 'ใส่ PIN เดิมอีกครั้งเพื่อยืนยัน' : 'ตั้ง PIN 6 หลัก สำหรับเข้าแอป') : 'ใส่ PIN 6 หลักเพื่อเข้าแอป';
-    main.innerHTML = '<div class="lock">' + avatarHtml(88, me.photoUrl, 'aria-hidden="true"') +
+    main.innerHTML = '<div class="lock">' + Logo.html(88, 'aria-hidden="true"') +
       '<div style="text-align:center"><div style="font-size:22px;font-weight:700">สวัสดีครับ' + (me.nickname ? ' ' + esc(me.nickname) : '') + '</div><div class="s" id="lk_msg">' + title() + '</div></div>' +
       '<div class="dots" id="lk_dots" role="img" aria-label="ใส่แล้ว 0 จาก 6 หลัก">' + '<span></span>'.repeat(6) + '</div>' +
       '<div class="keypad">' + '123456789'.split('').map(k => '<button type="button" data-k="' + k + '">' + k + '</button>').join('') +
@@ -1603,6 +1749,11 @@ route('settings', {
   html() {
     const s = (App.data && App.data.settings) || {};
     return topbar('ตั้งค่า', '#/profile') +
+      '<div class="box pad" style="display:flex;flex-direction:column;gap:14px"><h2 style="margin:0;font-size:17px">โลโก้แอป</h2>' +
+      '<div class="row-flex" style="gap:16px">' + Logo.html(96, 'alt="โลโก้ปัจจุบัน"') + '<div><div class="t">' + (Logo.isCustom() ? 'โลโก้ของคุณ' : 'โลโก้เริ่มต้น') + '</div><div class="s">ใช้ที่หน้าล็อก ไอคอนแท็บ และไอคอน iPhone</div></div></div>' +
+      '<button type="button" class="btn" id="st_logo"><span class="ms" aria-hidden="true">add_photo_alternate</span>เปลี่ยนโลโก้</button>' +
+      '<button type="button" class="btn ghost" id="st_icons"><span class="ms" aria-hidden="true">download</span>ดาวน์โหลดชุดไอคอน</button>' +
+      (Logo.isCustom() ? '<button type="button" class="btn danger" id="st_logo_reset"><span class="ms" aria-hidden="true">restart_alt</span>กลับไปใช้โลโก้เดิม</button>' : '') + '</div>' +
       '<div class="box">' +
       row({ icon: 'fingerprint', title: 'สแกนนิ้ว/ใบหน้า', sub: Bio.enabled() ? 'เปิดใช้อยู่ในเครื่องนี้ · แตะเพื่อปิด' : (Bio.supported() ? 'แตะเพื่อเปิดใช้' : 'เครื่องนี้ไม่รองรับ'), attrs: 'id="st_bio"' }) +
       row({ icon: 'password', title: 'เปลี่ยน PIN', attrs: 'id="st_pin"' }) +
@@ -1626,10 +1777,47 @@ route('settings', {
       }, 'เปลี่ยน PIN แล้ว');
     });
     $('#st_lock', el).onclick = () => Lock.close();
+    // เปลี่ยนโลโก้: เลือกรูป → ปรับ → บันทึกขึ้น Drive + เก็บในเครื่อง
+    $('#st_logo', el).onclick = async (e) => {
+      const btn = e.currentTarget;
+      const file = await pickFile({ accept: 'image/*' });
+      if (!file) return;
+      const dataUrl = await cropLogo(file);
+      if (!dataUrl) return;
+      await busy(btn, async () => {
+        const r = await api('saveLogo', { dataUrl });
+        Logo.set(dataUrl, r.logoVer);
+        render(true);
+      }, 'เปลี่ยนโลโก้แล้ว');
+    };
+    $('#st_icons', el).onclick = () => sheet('<h2>ชุดไอคอนพร้อมแล้ว</h2>' +
+      '<div class="row-flex" style="justify-content:space-around;align-items:flex-end">' +
+      [[72, 'icon-512.png'], [56, 'icon-192.png'], [52, 'apple-touch-icon.png']].map(([z, n]) => '<div style="display:flex;flex-direction:column;align-items:center;gap:6px">' + Logo.html(z, 'aria-hidden="true"') + '<span class="s">' + n + '</span></div>').join('') + '</div>' +
+      '<button type="button" class="btn" id="ic_dl"><span class="ms" aria-hidden="true">download</span>ดาวน์โหลด 3 ไฟล์</button>' +
+      '<div style="background:var(--sav-bg);border-radius:12px;padding:12px 14px"><div class="t" style="color:var(--sav)">ขั้นต่อไป (ทำครั้งเดียว)</div>' +
+      '<div class="s" style="color:var(--ink2)">1. เปิดหน้าอัปโหลด GitHub (ปุ่มด้านล่าง)<br>2. ลาก 3 ไฟล์นี้เข้าไป (ทับของเดิม) แล้วกด Commit changes<br>3. ลบแอปออกจากหน้าจอ แล้วติดตั้งใหม่</div></div>' +
+      '<a class="btn ghost" href="' + githubUploadUrl() + '" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">open_in_new</span>เปิดหน้าอัปโหลด GitHub</a>' +
+      '<button type="button" class="btn ghost" data-close>ปิด</button>', (sh) => {
+      $('#ic_dl', sh).onclick = (ev) => busy(ev.currentTarget, downloadIconSet, 'ดาวน์โหลดแล้ว ดูในโฟลเดอร์ดาวน์โหลด');
+    });
+    const rs = $('#st_logo_reset', el);
+    if (rs) rs.onclick = async (e) => {
+      const btn = e.currentTarget;
+      if (!(await confirmBox('กลับไปใช้โลโก้เดิม?', 'ใช้โลโก้เดิม', true))) return;
+      await busy(btn, async () => { await api('saveLogo', { dataUrl: '' }); Logo.set('', ''); render(true); }, 'กลับไปใช้โลโก้เดิมแล้ว');
+    };
     $('#st_reload', el).onclick = async () => { try { showLoading('กำลังโหลดใหม่…'); await refresh(); toast('โหลดใหม่แล้ว', 'ok'); go('#/home'); } catch (e) { toast(e.message, 'err'); } finally { hideLoading(); } };
     $('#st_conn', el).onclick = async () => { if (await confirmBox('ออกจากการเชื่อมต่อ แล้วใส่ URL/รหัสใหม่?', 'ตกลง')) { Store.del('key'); App.data = null; render(); } };
   }
 });
+</script>
+<script>
+// ใช้โลโก้ที่เก็บไว้ในเครื่องทันทีที่เปิดแอป
+try { Logo.apply(); } catch (e) { /* ข้าม */ }
+// ลงทะเบียน Service Worker เพื่อให้ติดตั้งเป็นแอปบนมือถือได้
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 </script>
 </body>
 </html>
