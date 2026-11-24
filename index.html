@@ -1,5 +1,6 @@
 <!doctype html>
-<!-- ไฟล์นี้ไฟล์เดียว อัปโหลดขึ้น GitHub (หน้าเว็บ) ทั้ง CSS และ JavaScript อยู่ในไฟล์นี้แล้ว -->
+<!-- ===== index.html เวอร์ชัน 1.7.0 (24 พ.ย. 69) — ต้องตรงกับ Code.gs เวอร์ชันเดียวกัน =====
+     ไฟล์นี้ไฟล์เดียว อัปโหลดขึ้น GitHub (หน้าเว็บ) ทั้ง CSS และ JavaScript อยู่ในไฟล์นี้แล้ว -->
 <html lang="th">
 <head>
 <meta charset="utf-8">
@@ -69,6 +70,34 @@ h2 { margin: 0; font-size: 17px; font-weight: 700; }
 .btn.danger { background: #fff; color: var(--out); min-height: 48px; font-size: 16px; }
 .btn.sm { min-height: 44px; font-size: 15px; width: auto; border-radius: 12px; }
 .btn:disabled { opacity: .55; }
+/* ===== รายการประจำ / บัญชีผ่อน / ประวัติ ===== */
+.rtag { display: inline-block; padding: 1px 8px; border-radius: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; vertical-align: 2px; }
+.rtag.ded { background: var(--warn-bg); color: var(--warn); } .rtag.var { background: var(--line2); color: var(--ink2); } .rtag.multi { background: var(--sav-bg); color: var(--sav); }
+.rtag.card { background: var(--out-bg); color: var(--out); } .rtag.link { background: var(--in-bg); color: var(--in); }
+.row .t .rtag { font-weight: 700; }
+.sw { width: 52px; height: 30px; border-radius: 15px; background: #CBD5E1; position: relative; flex: none; transition: background .15s; }
+.sw::after { content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 12px; background: #fff; transition: left .15s; }
+.sw.on { background: var(--in); } .sw.on::after { left: 25px; }
+.daygrp { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--bg); border-top: 1px solid var(--line); font-size: 14px; font-weight: 700; color: var(--ink2); }
+.daygrp .ms { font-size: 20px; }
+.dedbox { margin-top: 8px; display: flex; flex-direction: column; gap: 2px; }
+.kv { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; padding: 3px 0; } .kv > span { color: var(--muted); } .kv b { font-weight: 700; text-align: right; }
+.kv.total { border-top: 1px dashed #CBD5E1; margin-top: 4px; padding-top: 6px; } .kv.total > span { color: var(--ink); font-weight: 700; }
+.linkhint { margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: var(--in-bg); color: var(--in); font-size: 13px; font-weight: 600; display: flex; gap: 6px; align-items: center; }
+.linkhint .ms { font-size: 18px; }
+.icb.warnline { border-color: var(--warn); color: var(--warn); } .dangerline { color: var(--out) !important; border-color: #FECACA !important; }
+.sched { padding: 0 16px 8px; font-size: 14px; } .sched > div { display: grid; grid-template-columns: 1.2fr 1fr 1fr 1.2fr; gap: 4px; padding: 6px 0; border-top: 1px solid var(--line2); }
+.sched > div > span:not(:first-child) { text-align: right; } .sched .sh { color: var(--muted); font-weight: 700; border-top: 0; }
+.sched .now { background: var(--warn-bg); font-weight: 700; } .sched .pre { background: var(--in-bg); }
+.tl { display: flex; gap: 12px; padding: 10px 16px; border: 0; border-top: 1px solid var(--line2); background: none; width: 100%; text-align: left; cursor: pointer; color: var(--ink); }
+.tl .grow { display: flex; flex-direction: column; } .tl .dot { width: 12px; height: 12px; border-radius: 6px; background: #CBD5E1; margin-top: 6px; flex: none; } .tl .dot.now { background: var(--in); }
+.num { width: 36px; height: 36px; border-radius: 18px; background: var(--sav-bg); color: var(--sav); font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+.num.off { background: var(--line2); color: #94A3B8; }
+.sec { font-size: 14px; font-weight: 700; color: var(--muted); padding: 4px 2px 0; }
+.infobox, .calcbox { padding: 12px 14px; border-radius: 12px; background: var(--sav-bg); color: var(--ink2); font-size: 15px; display: flex; gap: 8px; }
+.infobox .ms { color: var(--sav); } .calcbox { flex-direction: column; gap: 4px; } .calcbox:empty { display: none; }
+.input.sm { height: 46px; font-size: 16px; }
+details > summary { list-style: none; } details > summary::-webkit-details-marker { display: none; }
 /* ===== โลโก้แอป + หน้าครอป ===== */
 .applogo { border-radius: 22%; object-fit: cover; flex: none; display: block; }
 .crop { position: fixed; inset: 0; z-index: 60; background: var(--ink); color: #fff; display: flex; flex-direction: column; }
@@ -210,7 +239,25 @@ textarea.input { height: 96px; padding: 12px 14px; resize: vertical; }
 /* ============================================================
  * core.js — แกนกลางของแอป: เรียก API, cache, router, ตัวช่วย UI
  * ============================================================ */
-const APP_VERSION = '1.5.0';
+// เลขเวอร์ชันระบบ — หน้าเว็บและหลังบ้าน (Code.gs) ใช้เลขเดียวกัน ถ้าไม่ตรงแอปจะเตือน
+const APP_VERSION = '1.7.0';
+// ประวัติเวอร์ชัน (ล่าสุดอยู่บน) แสดงในหน้า ตั้งค่า
+const CHANGELOG = [
+  ['1.7.0', '24 พ.ย. 69', 'แสดงเลขเวอร์ชัน · เตือนเมื่อหน้าเว็บกับหลังบ้านเป็นคนละเวอร์ชัน · ประวัติเวอร์ชัน'],
+  ['1.6.0', '23 พ.ย. 69', 'รายการประจำ (แก้ ปรับยอด ตัด ยกเลิกยืนยัน) · บัญชีผ่อน & สะสม · แผนออม/โป๊ะหนี้ · ยอดยกมา · ประวัติรับราชการ · ล้างข้อมูล'],
+  ['1.5.0', '22 พ.ย. 69', 'PIN 4 หลัก'],
+  ['1.4.0', '22 พ.ย. 69', 'เข้าแอปด้วย PIN อย่างเดียว (ไม่ต้องกรอก URL/รหัส) · ตั้งเวลาล็อกอัตโนมัติ'],
+  ['1.3.0', '22 พ.ย. 69', 'เปลี่ยนโลโก้แอป + ดาวน์โหลดชุดไอคอน'],
+  ['1.2.0', '22 พ.ย. 69', 'ติดตั้งเป็นแอปบนมือถือได้ (PWA)'],
+  ['1.1.0', '21 พ.ย. 69', 'เวอร์ชันแรกที่ใช้งานจริง']
+];
+// หน้าเว็บกับหลังบ้านเวอร์ชันไม่ตรงกัน (เช่น ลืม Deploy Code.gs ใหม่)
+function versionMismatch() { return App.data && App.data.version && App.data.version !== APP_VERSION; }
+function versionWarnHtml() {
+  if (!versionMismatch()) return '';
+  return '<div class="box warnbox row-flex" style="padding:12px 14px;gap:10px;align-items:flex-start"><span class="ms warn" aria-hidden="true">sync_problem</span><div><div class="t">เวอร์ชันไม่ตรงกัน</div>' +
+    '<div class="s">หน้าเว็บ ' + APP_VERSION + ' · หลังบ้าน ' + esc(App.data.version) + ' — ' + (App.data.version < APP_VERSION ? 'ให้วาง Code.gs เวอร์ชัน ' + APP_VERSION + ' แล้ว Deploy เป็น New version' : 'ให้อัปโหลด index.html เวอร์ชัน ' + esc(App.data.version) + ' ขึ้น GitHub') + '</div></div></div>';
+}
 const NEW_PIN_LENGTH = 4; // PIN ที่ตั้งใหม่ใช้ 4 หลัก
 const pinLen = () => Number(Store.get('pinLen', 6)); // ความยาว PIN ปัจจุบัน (PIN เก่า 6 หลัก)
 // ที่อยู่หลังบ้าน (Apps Script /exec) — เปิดเผยได้ เพราะต้องใส่ PIN ถูกก่อนจึงจะดึงข้อมูลได้
@@ -705,8 +752,8 @@ function catIcon(type, name) {
   const c = (App.data.categories || []).find(x => x.type === type && x.name === name);
   return c ? c.icon : ({ 'รายรับ': 'south_west', 'รายจ่าย': 'north_east', 'ออม': 'savings' }[type] || 'circle');
 }
-function accountsOf(kind) { return (App.data.accounts || []).filter(a => a.kind === kind && isActive(a.active)).sort((a, b) => num(a.sort) - num(b.sort)); }
-function sumValue(list) { return round2(list.reduce((s, a) => s + num(a.value), 0)); }
+function accountsOf(kind) { return (App.data.accounts || []).filter(a => a.kind === kind && isActive(a.active) && !isOn(a.closed)).sort((a, b) => num(a.sort) - num(b.sort)); }
+function sumValue(list) { return round2(list.reduce((s, a) => s + accValue(a), 0)); }
 function txSorted(list) { return list.slice().sort((a, b) => (String(b.date) + String(b.createdAt)).localeCompare(String(a.date) + String(a.createdAt))); }
 
 /* ---------- ภาพรวม ---------- */
@@ -731,7 +778,7 @@ route('home', {
       '<div class="row-flex" style="padding-top:6px">' + avatarHtml(56, me.photoUrl, 'href="#/profile" aria-label="ข้อมูลของฉัน"') +
       '<div style="flex:1;min-width:0"><div class="s">สวัสดีครับ</div><div style="font-size:20px;font-weight:700">' + esc(me.nickname || 'ตั้งชื่อเล่นได้ที่รูปโปรไฟล์') + '</div></div>' +
       '<a href="#/profile" class="icb outline" aria-label="แจ้งเตือน ' + rem.length + ' รายการ"><span class="ms" aria-hidden="true">notifications</span>' + (rem.length ? '<span class="badge">' + rem.length + '</span>' : '') + '</a></div>' +
-      monthbar(thMonth(App.month)) +
+      versionWarnHtml() + monthbar(thMonth(App.month)) +
       '<div class="hero"><div style="font-size:15px;color:#CBD5E1">คงเหลือเดือนนี้</div>' +
       '<div style="font-size:44px;font-weight:700;line-height:1">' + (left < 0 ? '−' : '') + '฿' + fmt(Math.abs(left)) + '</div>' +
       '<div class="split" role="img" aria-label="ออม ' + pS + '% จ่าย ' + pE + '% เหลือ ' + pL + '%"><div style="width:' + pS + '%;background:#60A5FA"></div><div style="width:' + pE + '%;background:#F87171"></div></div>' +
@@ -757,7 +804,8 @@ route('home', {
       row({ icon: 'local_gas_station', title: 'กำไรเดือนนี้', sub: low.length ? low.join(', ') + ' ใกล้หมด' : D.activePumps().length + ' ตู้', amount: money(fuelNet, fuelNet >= 0 ? 'in' : 'out', 0), kind: fuelNet >= 0 ? 'in' : 'out', href: '#/fuel' }) + '</div>' +
       '<div class="box"><div class="hd"><h2>ล่าสุด</h2><a href="#/list" class="s" style="font-weight:600;color:#334155">ดูทั้งหมด</a></div>' +
       (recent.length ? recent.map(t => row({ icon: catIcon(t.type, t.category), title: t.title, sub: thDate(t.date) + ' · ' + (t.category || t.type), amount: money(num(t.amount), typeKind(t.type)), kind: typeKind(t.type), href: '#/record?id=' + encodeURIComponent(t.id) })).join('')
-        : '<div class="empty">ยังไม่มีรายการเดือนนี้ · กดปุ่ม + เพื่อเริ่มบันทึก</div>') + '</div>';
+        : '<div class="empty">ยังไม่มีรายการเดือนนี้ · กดปุ่ม + เพื่อเริ่มบันทึก</div>') + '</div>' +
+      '<a href="#/settings" class="s" style="text-align:center;text-decoration:none">เวอร์ชัน ' + APP_VERSION + (versionMismatch() ? ' · หลังบ้าน ' + esc(d.version) + ' ⚠' : '') + '</a>';
   }
 });
 
@@ -770,9 +818,7 @@ route('list', {
     return monthbar('รายการ · ' + thMonth(App.month, true)) +
       '<div class="fld"><span class="ms" aria-hidden="true" style="position:absolute;left:14px;top:14px;color:#64748B">search</span><input id="q" class="input" placeholder="ค้นหารายการ…" aria-label="ค้นหารายการ" style="padding-left:46px"></div>' +
       '<div class="grid4">' + chips('f', [{ value: 'ทั้งหมด', label: 'ทั้งหมด' }, { value: 'รายรับ', label: 'รับ' }, { value: 'รายจ่าย', label: 'จ่าย' }, { value: 'ออม', label: 'ออม' }], f) + '</div>' +
-      (pend.length ? '<div class="box warnbox"><div class="hd"><h2 class="warn">รอยืนยัน (' + pend.length + ')</h2><button class="btn sm" id="confirmAll">ยืนยันทั้งหมด</button></div>' +
-        pend.map(r => '<div class="row"><div class="ic"><span class="ms" aria-hidden="true">' + catIcon(r.type, r.category) + '</span></div><div class="grow"><div class="t">' + esc(r.title) + '</div><div class="s">ทุกวันที่ ' + (num(r.dayOfMonth) || 1) + ' · ' + esc(r.category || r.type) + '</div></div>' +
-          '<div class="amt ' + typeKind(r.type) + '">' + money(num(r.amount), typeKind(r.type)) + '</div><button class="icb outline" data-confirm="' + esc(r.id) + '" aria-label="ยืนยัน ' + esc(r.title) + '"><span class="ms" aria-hidden="true">check</span></button></div>').join('') + '</div>' : '') +
+      pendingHtml() +
       '<div id="txlist"></div>';
   },
   mount(p, el) {
@@ -788,10 +834,7 @@ route('list', {
     draw();
     bindChips(el, 'f', v => { filter = v; draw(); });
     $('#q', el).addEventListener('input', debounce(e => { q = e.target.value.trim().toLowerCase(); draw(); }, 250));
-    const confirm = async (ids, btn) => busy(btn, async () => { await api('confirmRecurring', { month: App.month, ids }); await refresh(); render(true); }, 'ยืนยันแล้ว ' + ids.length + ' รายการ');
-    $$('[data-confirm]', el).forEach(b => b.addEventListener('click', () => confirm([b.dataset.confirm], b)));
-    const all = $('#confirmAll', el);
-    if (all) all.addEventListener('click', () => confirm((App.data.pendingRecurring || []).map(r => r.id), all));
+    mountPending(el);
   }
 });
 
@@ -1008,9 +1051,10 @@ route('assets', {
       '<div style="display:flex;height:12px;border-radius:6px;overflow:hidden" role="img" aria-label="ทรัพย์สิน ' + Math.round(A / tot * 100) + '% หนี้สิน ' + Math.round(Dt / tot * 100) + '%"><div style="width:' + (A / tot * 100) + '%;background:#047857"></div><div style="width:' + (Dt / tot * 100) + '%;background:#B91C1C"></div></div>' +
       '<div style="display:flex;justify-content:space-between"><div><div class="s">ทรัพย์สิน</div><div class="amt in">' + fmt(A, 0) + '</div></div><div style="text-align:right"><div class="s">หนี้สิน</div><div class="amt out">−' + fmt(Dt, 0) + '</div></div></div></div>' +
       '<div class="box"><div class="hd"><h2>ทรัพย์สิน</h2><button class="icb" data-add="ทรัพย์สิน" aria-label="เพิ่มทรัพย์สิน"><span class="ms" aria-hidden="true">add</span></button></div>' +
-      (as.length ? as.map(a => row({ icon: groupIcon(a), title: a.name, sub: sub(a), amount: fmt(a.value, 0), kind: 'in', attrs: 'data-acc="' + esc(a.id) + '"' })).join('') : '<div class="empty">ยังไม่มีรายการ</div>') + '</div>' +
+      (as.length ? as.map(a => a.planType ? row({ icon: PLAN_TYPES[a.planType][1], title: a.name, sub: PLAN_TYPES[a.planType][0] + ' · ดูแผน/ประวัติ', amount: fmt(accValue(a), 0), kind: 'in', href: '#/plan?id=' + encodeURIComponent(a.id) }) : row({ icon: groupIcon(a), title: a.name, sub: sub(a), amount: fmt(a.value, 0), kind: 'in', attrs: 'data-acc="' + esc(a.id) + '"' })).join('') : '<div class="empty">ยังไม่มีรายการ</div>') + '</div>' +
       '<div class="box"><div class="hd"><h2>หนี้สิน</h2><button class="icb" data-add="หนี้สิน" aria-label="เพิ่มหนี้สิน"><span class="ms" aria-hidden="true">add</span></button></div>' +
-      (ds.length ? ds.map(a => row({ icon: groupIcon(a), title: a.name, sub: sub(a), amount: '−' + fmt(a.value, 0), kind: 'out', attrs: 'data-acc="' + esc(a.id) + '"' })).join('') : '<div class="empty">ไม่มีหนี้</div>') + '</div>' +
+      (ds.length ? ds.map(a => a.planType ? row({ icon: PLAN_TYPES[a.planType][1], title: a.name, sub: PLAN_TYPES[a.planType][0] + ' · ดูแผน/ประวัติ', amount: '−' + fmt(accValue(a), 0), kind: 'out', href: '#/plan?id=' + encodeURIComponent(a.id) }) : row({ icon: groupIcon(a), title: a.name, sub: sub(a), amount: '−' + fmt(a.value, 0), kind: 'out', attrs: 'data-acc="' + esc(a.id) + '"' })).join('') : '<div class="empty">ไม่มีหนี้</div>') + '</div>' +
+      '<a class="btn ghost" href="#/plans"><span class="ms" aria-hidden="true">event_repeat</span>บัญชีผ่อน &amp; สะสม · วางแผนออม/โป๊ะหนี้</a>' +
       '<button class="btn" id="updAll"><span class="ms" aria-hidden="true">edit_calendar</span>อัปเดตมูลค่าประจำเดือน</button>';
   },
   mount(p, el) {
@@ -1053,7 +1097,7 @@ function editAccount(a) {
 
 // อัปเดตมูลค่าทุกบัญชีในครั้งเดียว (บันทึกประวัติรายเดือน)
 function updateAllValues() {
-  const list = accountsOf('ทรัพย์สิน').concat(accountsOf('หนี้สิน'));
+  const list = accountsOf('ทรัพย์สิน').concat(accountsOf('หนี้สิน')).filter(a => !a.planType); // บัญชีที่มีแผน คำนวณเอง
   sheet('<h2>อัปเดตมูลค่าประจำเดือน</h2><div class="s">แก้เฉพาะตัวที่เปลี่ยน แล้วกดบันทึกครั้งเดียว</div>' +
     list.map(a => '<div class="fld"><label class="lbl" for="uv_' + esc(a.id) + '">' + esc(a.name) + (a.kind === 'หนี้สิน' ? ' (หนี้)' : '') + '</label><input class="input ' + (a.kind === 'หนี้สิน' ? 'out' : '') + '" id="uv_' + esc(a.id) + '" inputmode="decimal" value="' + esc(a.value) + '"></div>').join('') +
     '<button class="btn" id="uv_save">บันทึกทั้งหมด</button><button class="btn ghost" data-close>ยกเลิก</button>',
@@ -1580,7 +1624,7 @@ const Lock = {
       '<div class="keypad">' + '123456789'.split('').map(k => '<button type="button" data-k="' + k + '">' + k + '</button>').join('') +
       (!setMode && hasToken && Bio.enabled() ? '<button type="button" class="k-bio" id="lk_bio" aria-label="ปลดล็อกด้วยลายนิ้วมือ/ใบหน้า"><span class="ms" aria-hidden="true" style="font-size:34px">fingerprint</span></button>' : '<span></span>') +
       '<button type="button" data-k="0">0</button><button type="button" class="k-del" id="lk_del" aria-label="ลบ"><span class="ms" aria-hidden="true" style="font-size:30px">backspace</span></button></div>' +
-      '<div class="s" style="margin-top:auto;text-align:center">ลืม PIN? เปิดหน้า Apps Script แล้วรันฟังก์ชัน resetPin</div></div>';
+      '<div class="s" style="margin-top:auto;text-align:center">ลืม PIN? เปิดหน้า Apps Script แล้วรันฟังก์ชัน resetPin<br>เวอร์ชัน ' + APP_VERSION + '</div></div>';
     const dots = $('#lk_dots', main), msg = $('#lk_msg', main);
     const draw = () => { $$('span', dots).forEach((s, i) => s.classList.toggle('f', i < pin.length)); dots.setAttribute('aria-label', 'ใส่แล้ว ' + pin.length + ' จาก ' + LEN + ' หลัก'); };
     const fail = (text) => { msg.textContent = text; msg.className = 'err-text'; dots.classList.remove('shake'); void dots.offsetWidth; dots.classList.add('shake'); pin = ''; draw(); };
@@ -1641,9 +1685,7 @@ route('profile', {
     const s = App.data.settings || {};
     const rem = App.data.reminders || [];
     return topbar('ข้อมูลของฉัน', '#/home', '<a href="#/settings" class="icb" aria-label="ตั้งค่า"><span class="ms" aria-hidden="true">settings</span></a>') +
-      '<div class="box pad" style="display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center"><div style="position:relative">' + avatarHtml(104, s.photoUrl, 'role="img" aria-label="รูปโปรไฟล์"') +
-      '<button class="icb" id="pf_photo" aria-label="เปลี่ยนรูป" style="position:absolute;right:-4px;bottom:-4px;width:40px;height:40px;border:3px solid #fff;background:#0F172A;color:#fff"><span class="ms" aria-hidden="true" style="font-size:20px">photo_camera</span></button></div>' +
-      '<button class="row-flex" id="pf_nick" style="border:0;background:none;font-size:22px;font-weight:700;gap:6px;cursor:pointer;min-height:44px">' + esc(s.nickname || 'ตั้งชื่อเล่น') + '<span class="ms" aria-hidden="true" style="font-size:20px;color:#475569">edit</span></button></div>' +
+      careerHtml() + '<div class="sec">เลขาส่วนตัว · ข้อมูล เอกสาร ลิงก์</div>' +
       '<div class="fld"><span class="ms" aria-hidden="true" style="position:absolute;left:14px;top:14px;color:#64748B">search</span><input id="pf_q" class="input" placeholder="ค้นหาเอกสาร ลิงก์ ข้อมูล…" aria-label="ค้นหา" style="padding-left:46px"></div>' +
       '<div class="grid4">' + chips('pk', ['ทั้งหมด', 'ข้อมูล', 'เอกสาร', 'ลิงก์'], 'ทั้งหมด') + '</div>' +
       (rem.length ? '<div class="box warnbox"><div class="hd"><h2 class="warn">ใกล้ครบกำหนด</h2></div>' + rem.map(r => row({ icon: r.daysLeft < 0 ? 'error' : 'event', title: r.title, sub: thDate(r.dueDate), amount: dueText(r), kind: r.daysLeft <= 7 ? 'out' : 'warn', attrs: 'data-item="' + esc(r.id) + '"' })).join('') + '</div>' : '') +
@@ -1691,7 +1733,8 @@ route('profile', {
     $('#pf_q', el).addEventListener('input', debounce(e => { q = e.target.value.trim().toLowerCase(); draw(); }, 250));
     $('#pf_add', el).onclick = () => sheet('<h2>เพิ่มอะไร?</h2><div class="grid2">' + Object.keys(PF_KINDS).map(k => '<button class="btn2" data-k="' + k + '"><span class="ms" aria-hidden="true">' + PF_KINDS[k] + '</span>' + k + '</button>').join('') + '</div><button class="btn ghost" data-close>ยกเลิก</button>',
       (sh, close) => $$('[data-k]', sh).forEach(b => b.onclick = () => { close(); editProfileItem({ kind: b.dataset.k }); }));
-    $('#pf_photo', el).onclick = async () => {
+    mountCareer(el);
+    if ($('#pf_photo', el)) $('#pf_photo', el).onclick = async () => {
       const f = await pickFile({});
       if (!f) return;
       try {
@@ -1702,7 +1745,7 @@ route('profile', {
         await refresh(); render(true); toast('เปลี่ยนรูปแล้ว', 'ok');
       } catch (e) { toast(e.message, 'err'); } finally { hideLoading(); }
     };
-    $('#pf_nick', el).onclick = () => sheet('<h2>ชื่อเล่น</h2>' + field('nk', 'ชื่อที่ให้แสดง', App.data.settings.nickname || '') + '<button class="btn" id="nk_s">บันทึก</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
+    if ($('#pf_nick', el)) $('#pf_nick', el).onclick = () => sheet('<h2>ชื่อเล่น</h2>' + field('nk', 'ชื่อที่ให้แสดง', App.data.settings.nickname || '') + '<button class="btn" id="nk_s">บันทึก</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
       $('#nk_s', sh).onclick = (e) => busy(e.currentTarget, async () => { await api('saveSettings', { values: { nickname: $('#nk', sh).value.trim() } }); await refresh(); close(); render(true); }, 'บันทึกแล้ว');
     });
   }
@@ -1773,6 +1816,690 @@ function editProfileItem(it) {
   });
 }
 
+/* ============================================================
+ * plans.js — รายการประจำ, บัญชีผ่อน & สะสม, วางแผนออม/โป๊ะหนี้, ยอดยกมา, ประวัติรับราชการ
+ * ============================================================ */
+
+/* ---------- ตัวช่วยเดือน/วันที่ ---------- */
+function curMonth() { return todayStr().slice(0, 7); }
+function monthDiff(a, b) { return (Number(b.slice(0, 4)) - Number(a.slice(0, 4))) * 12 + Number(b.slice(5, 7)) - Number(a.slice(5, 7)); }
+function monthInput(id, label, value) {
+  return '<div class="fld"><label class="lbl" for="' + id + '">' + esc(label) + '</label><input class="input" type="month" id="' + id + '" value="' + esc(value || '') + '"></div>';
+}
+// สวิตช์เปิด/ปิด (กดได้ทั้งแถว)
+function switchRow(id, title, sub, on) {
+  return '<button type="button" class="row" role="switch" id="' + id + '" aria-checked="' + !!on + '"><div class="grow"><div class="t">' + esc(title) + '</div>' + (sub ? '<div class="s">' + esc(sub) + '</div>' : '') + '</div><span class="sw' + (on ? ' on' : '') + '" aria-hidden="true"></span></button>';
+}
+function bindSwitch(el, id, onChange) {
+  const b = $('#' + id, el);
+  if (!b) return;
+  b.onclick = () => { const v = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', v); $('.sw', b).classList.toggle('on', v); if (onChange) onChange(v); };
+}
+const swVal = (el, id) => { const b = $('#' + id, el); return !!b && b.getAttribute('aria-checked') === 'true'; };
+function rtag(cls, text) { return '<span class="rtag ' + cls + '">' + esc(text) + '</span>'; }
+
+/* ---------- วันเกษียณ อายุ (ข้อมูลของฉัน) ---------- */
+// เกษียณ = 30 ก.ย. ของปีงบประมาณที่อายุครบ 60 ปี (อายุครบ = วันก่อนวันเกิด)
+function retireDate(birth) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(birth || '')) return '';
+  const y = Number(birth.slice(0, 4)), m = Number(birth.slice(5, 7)), d = Number(birth.slice(8, 10));
+  const full = new Date(Date.UTC(y + 60, m - 1, d) - 86400000);
+  const fy = full.getUTCMonth() <= 8 ? full.getUTCFullYear() : full.getUTCFullYear() + 1;
+  return fy + '-09-30';
+}
+function yearsMonths(from, to) {
+  if (!from || !to) return null;
+  let months = monthDiff(from.slice(0, 7), to.slice(0, 7));
+  if (Number(to.slice(8, 10)) < Number(from.slice(8, 10))) months--;
+  months = Math.max(0, months);
+  return { y: Math.floor(months / 12), m: months % 12 };
+}
+function ymText(v) { return v ? v.y + ' ปี' + (v.m ? ' ' + v.m + ' เดือน' : '') : '-'; }
+function careerOf(kind) { return (App.data.career || []).filter(c => c.kind === kind).sort((a, b) => String(b.fromDate).localeCompare(String(a.fromDate))); }
+function retireMonth() { const r = retireDate((App.data.settings || {}).birthDate); return r ? r.slice(0, 7) : ''; }
+
+/* ---------- ยอดของรายการประจำ ---------- */
+const RC_MODES = { fixed: ['ยอดคงที่', 'lock'], variable: ['ไม่แน่นอน', 'edit'], multi: ['หลายครั้ง/เดือน', 'repeat'], lastMonth: ['ยอดเดือนก่อน', 'history'] };
+function rcMode(r) { return RC_MODES[r.amountMode] ? r.amountMode : 'fixed'; }
+function rcTags(r) {
+  const out = [];
+  if (isOn(r.deductFromSalary)) out.push(rtag('ded', 'หักเงินเดือน'));
+  if (r.triggerId) { const t = (App.data.recurring || []).find(x => x.id === r.triggerId); out.push(rtag('link', 'ตาม' + (t ? t.title.split(' ')[0] : 'รายการอื่น'))); }
+  const m = rcMode(r);
+  if (m === 'variable') out.push(rtag('var', 'ไม่แน่นอน'));
+  if (m === 'multi') out.push(rtag('multi', 'หลายครั้ง'));
+  if (m === 'lastMonth') out.push(rtag('card', 'ยอดเดือนก่อน'));
+  return out.join('');
+}
+function rcTitle(r) {
+  if (!isOn(r.isSalary)) return r.title;
+  const step = careerOf('salary').find(c => String(c.fromDate).slice(0, 7) <= App.month);
+  return step && r.title.indexOf(step.title) < 0 ? r.title + ' ' + step.title : r.title;
+}
+function rcCut(r) { return !isActive(r.active) || (r.endMonth && String(r.endMonth) <= curMonth()); }
+
+/* ---------- รอยืนยัน (หน้ารายการเดือนนี้) ---------- */
+function pendingHtml() {
+  const all = App.data.pendingRecurring || [];
+  const salary = all.filter(r => isOn(r.isSalary));
+  const deds = all.filter(r => isOn(r.deductFromSalary));
+  // ซ่อน: รายการที่ทำตามรายการอื่น (ถามตอนยืนยัน) และรายการหักเงินเดือน (อยู่ในการ์ดเงินเดือน)
+  const show = all.filter(r => !r.triggerId && !(isOn(r.deductFromSalary) && salary.length));
+  const confirmed = (App.data.transactions || []).filter(t => t.recurringId && !t.groupId);
+  if (!show.length && !confirmed.length) return '<a class="btn ghost" href="#/recurring"><span class="ms" aria-hidden="true">tune</span>จัดการรายการประจำ</a>';
+  const days = {};
+  show.forEach(r => { const d = num(r.dayOfMonth) || 1; (days[d] = days[d] || []).push(r); });
+  const btn = (r) => {
+    const m = rcMode(r);
+    if (m === 'multi') return '<button class="icb outline" data-multi="' + esc(r.id) + '" aria-label="บันทึก ' + esc(r.title) + ' เพิ่ม"><span class="ms" aria-hidden="true">add</span></button>';
+    if (m === 'variable' || m === 'lastMonth') return '<button class="icb outline warnline" data-ask="' + esc(r.id) + '" aria-label="กรอกยอดแล้วยืนยัน ' + esc(r.title) + '"><span class="ms" aria-hidden="true">edit</span></button>';
+    return '<button class="icb outline" data-confirm="' + esc(r.id) + '" aria-label="ยืนยัน ' + esc(r.title) + '"><span class="ms" aria-hidden="true">check</span></button>';
+  };
+  const rowOf = (r) => {
+    const k = typeKind(r.type), m = rcMode(r);
+    let sub = m === 'multi' ? 'บันทึกได้หลายครั้ง · เดือนนี้ ' + (r.doneCount || 0) + ' ครั้ง' : m === 'lastMonth' ? 'ยอด ' + (r.sourceCategory || '') + ' เดือน ' + thMonth(addMonth(App.month, -1), true) : m === 'variable' ? 'ยอดตั้งต้น · กรอกยอดจริงตอนยืนยัน' : (r.category || r.type);
+    let extra = '';
+    if (isOn(r.isSalary) && deds.length) {
+      const dsum = deds.reduce((s, d) => s + num(d.amount), 0);
+      extra = '<div class="dedbox">' + deds.map(d => '<div class="kv"><span>− ' + esc(d.title) + '</span><b class="' + typeKind(d.type) + '">' + fmt(d.amount) + '</b></div>').join('') +
+        '<div class="kv total"><span>รับเข้าบัญชีจริง</span><b class="in">' + fmt(num(r.amount) - dsum) + '</b></div></div>';
+      sub = 'ก่อนหัก ' + fmt(r.amount);
+    }
+    const linked = (App.data.recurring || []).filter(x => x.triggerId === r.id && !rcCut(x));
+    if (linked.length) extra += '<div class="linkhint"><span class="ms" aria-hidden="true">link</span>ยืนยันแล้วจะถาม: ' + esc(linked.map(x => x.title + ' ' + fmt(x.amount)).join(', ')) + '</div>';
+    return '<div class="row" style="align-items:flex-start"><div class="ic"><span class="ms" aria-hidden="true">' + catIcon(r.type, r.category) + '</span></div><div class="grow"><div class="t">' + esc(rcTitle(r)) + ' ' + rcTags(r) + '</div><div class="s">' + esc(sub) + '</div>' + extra + '</div>' +
+      '<div class="amt ' + k + '">' + (m === 'variable' ? '~' : '') + money(num(r.amount), k) + '</div>' + btn(r) + '</div>';
+  };
+  const confirmable = show.filter(r => ['fixed'].indexOf(rcMode(r)) >= 0);
+  return (show.length ? '<div class="box warnbox"><div class="hd"><h2 class="warn">รอยืนยัน (' + show.length + ')</h2>' + (confirmable.length ? '<button class="btn sm" id="confirmAll">ยืนยันยอดคงที่ทั้งหมด</button>' : '') + '</div>' +
+    Object.keys(days).sort((a, b) => a - b).map(d => '<div class="daygrp"><span class="ms" aria-hidden="true">event</span>วันที่ ' + d + '</div>' + days[d].map(rowOf).join('')).join('') + '</div>' : '') +
+    (confirmed.length ? '<div class="box"><div class="hd"><h2 class="in">ยืนยันแล้ว (' + confirmed.length + ')</h2><button class="btn sm ghost dangerline" id="resetMonth"><span class="ms" aria-hidden="true">restart_alt</span>รีเซ็ตทั้งเดือน</button></div>' +
+      txSorted(confirmed).map(t => {
+        const kids = (App.data.transactions || []).filter(x => x.groupId && x.groupId === t.recurringId);
+        return '<div class="row"><div class="ic"><span class="ms" aria-hidden="true">' + catIcon(t.type, t.category) + '</span></div><div class="grow"><div class="t">' + esc(t.title) + '</div><div class="s">' + thDate(t.date) + (kids.length ? ' · พร้อม ' + esc(kids.map(k => k.title).join(', ')) : '') + '</div></div>' +
+          '<div class="amt ' + typeKind(t.type) + '">' + money(num(t.amount), typeKind(t.type)) + '</div><button class="icb outline dangerline" data-undo="' + esc(t.id) + '" aria-label="ยกเลิกการยืนยัน ' + esc(t.title) + '"><span class="ms" aria-hidden="true">undo</span></button></div>';
+      }).join('') + '</div>' : '') +
+    '<a class="btn ghost" href="#/recurring"><span class="ms" aria-hidden="true">tune</span>จัดการรายการประจำ</a>';
+}
+
+// ขอยอดจริง (และวันที่) ก่อนยืนยัน — คืนค่า {amount, date} หรือ null
+function askAmount(r, title) {
+  return new Promise(resolve => {
+    const dd = Math.min(num(r.dayOfMonth) || 1, 28);
+    sheet('<h2>' + esc(title || rcTitle(r)) + '</h2>' + field('aa_amt', 'ยอด (บาท)', num(r.amount) || '', 'inputmode="decimal"') + dateField('aa_date', 'วันที่', App.month === curMonth() && rcMode(r) === 'multi' ? todayStr() : App.month + '-' + pad2(dd)) +
+      '<button class="btn" id="aa_ok">ยืนยัน</button><button class="btn ghost" data-close>ยกเลิก</button>', (el, close) => {
+      $$('[data-close]', el).forEach(b => b.addEventListener('click', () => resolve(null)));
+      $('#aa_ok', el).onclick = () => {
+        const amount = num($('#aa_amt', el).value);
+        if (amount <= 0) { toast('กรุณากรอกยอด', 'err'); return; }
+        close(); resolve({ amount, date: $('#aa_date', el).value });
+      };
+    });
+  });
+}
+
+// ยืนยัน แล้วถามรายการที่ผูกไว้ (เช่น ยืนยันโอที → ถามโอนแชร์)
+async function confirmRecurringItems(items, btn) {
+  await busy(btn, async () => { await api('confirmRecurring', { month: App.month, items }); }, 'ยืนยันแล้ว');
+  for (const it of items) {
+    const linked = (App.data.recurring || []).filter(x => x.triggerId === it.id && !rcCut(x));
+    for (const x of linked) {
+      const amt = num((App.data.pendingRecurring || []).find(p => p.id === x.id)?.amount ?? x.amount);
+      if (await confirmBox('ยืนยัน "' + x.title + '" ' + fmt(amt) + ' บาท ด้วยไหม?', 'ยืนยันด้วย')) {
+        try { await api('confirmRecurring', { month: App.month, items: [{ id: x.id, groupId: it.id, date: it.date }] }); toast('ยืนยัน ' + x.title + ' แล้ว'); } catch (e) { toast(e.message, 'err'); }
+      }
+    }
+  }
+  await refresh(); render(true);
+}
+
+function mountPending(el) {
+  const find = (id) => (App.data.pendingRecurring || []).find(r => r.id === id);
+  $$('[data-confirm]', el).forEach(b => b.onclick = () => confirmRecurringItems([{ id: b.dataset.confirm }], b).catch(() => {}));
+  $$('[data-ask]', el).forEach(b => b.onclick = async () => {
+    const r = find(b.dataset.ask); const v = await askAmount(r);
+    if (v) confirmRecurringItems([{ id: r.id, amount: v.amount, date: v.date }], b).catch(() => {});
+  });
+  $$('[data-multi]', el).forEach(b => b.onclick = async () => {
+    const r = find(b.dataset.multi); const v = await askAmount(r, 'บันทึก ' + r.title + ' (ครั้งที่ ' + ((r.doneCount || 0) + 1) + ')');
+    if (v) confirmRecurringItems([{ id: r.id, amount: v.amount, date: v.date }], b).catch(() => {});
+  });
+  const all = $('#confirmAll', el);
+  if (all) all.onclick = () => {
+    const salary = (App.data.pendingRecurring || []).some(r => isOn(r.isSalary));
+    const items = (App.data.pendingRecurring || []).filter(r => !r.triggerId && rcMode(r) === 'fixed' && !(salary && isOn(r.deductFromSalary))).map(r => ({ id: r.id }));
+    confirmRecurringItems(items, all).catch(() => {});
+  };
+  $$('[data-undo]', el).forEach(b => b.onclick = async () => {
+    const t = (App.data.transactions || []).find(x => x.id === b.dataset.undo);
+    const kids = (App.data.transactions || []).filter(x => x.groupId && x.groupId === t.recurringId);
+    const msg = 'ยกเลิกการยืนยัน "' + t.title + '"?' + (kids.length ? ' (' + kids.map(k => k.title).join(', ') + ' จะยกเลิกด้วย)' : '');
+    if (!await confirmBox(msg, 'ยกเลิกการยืนยัน', true)) return;
+    busy(b, async () => { await api('undoRecurring', { txId: t.id }); await refresh(); render(true); }, 'ยกเลิกแล้ว กลับไปอยู่ในรอยืนยัน').catch(() => {});
+  });
+  const rs = $('#resetMonth', el);
+  if (rs) rs.onclick = async () => {
+    if (!await confirmBox('รีเซ็ตรายการประจำทั้งเดือน ' + thMonth(App.month) + '? ทุกรายการที่ยืนยันแล้วจะกลับไปรอยืนยัน', 'รีเซ็ต', true)) return;
+    busy(rs, async () => { await api('resetRecurringMonth', { month: App.month }); await refresh(); render(true); }, 'รีเซ็ตแล้ว').catch(() => {});
+  };
+}
+
+/* ---------- จัดการรายการประจำ ---------- */
+route('recurring', {
+  form: true,
+  html() {
+    const list = (App.data.recurring || []).slice().sort((a, b) => num(a.dayOfMonth) - num(b.dayOfMonth) || num(a.sort) - num(b.sort));
+    const live = list.filter(r => !rcCut(r)), cut = list.filter(rcCut);
+    const sec = (type, title, kind) => {
+      const items = live.filter(r => r.type === type);
+      const total = items.reduce((s, r) => s + num(r.amount), 0);
+      return '<div class="box"><div class="hd"><h2 class="' + kind + '">' + title + '</h2><span class="s">ต่อเดือน ~' + fmt(total, 0) + '</span></div>' +
+        (items.length ? items.map(r => '<a class="row" href="#/recurring-edit?id=' + encodeURIComponent(r.id) + '"><div class="ic"><span class="ms" aria-hidden="true">' + catIcon(r.type, r.category) + '</span></div><div class="grow"><div class="t">' + esc(rcTitle(r)) + ' ' + rcTags(r) + '</div><div class="s">' +
+          esc(r.triggerId ? 'ทำเมื่อยืนยันรายการที่ผูกไว้' : isOn(r.deductFromSalary) ? 'หักจากเงินเดือน' : 'วันที่ ' + (num(r.dayOfMonth) || 1)) + '</div></div><div class="amt ' + kind + '">' + fmt(r.amount) + '</div><span class="ms chev" aria-hidden="true">chevron_right</span></a>').join('') : '<div class="empty">ยังไม่มีรายการ</div>') + '</div>';
+    };
+    return topbar('รายการประจำ', '#/list', '<a href="#/recurring-edit" class="icb" aria-label="เพิ่มรายการประจำ"><span class="ms" aria-hidden="true">add</span></a>') +
+      sec('รายรับ', 'รายรับ', 'in') + sec('ออม', 'ออม / ลงทุน', 'sav') + sec('รายจ่าย', 'รายจ่าย / ผ่อน', 'out') +
+      (cut.length ? '<details class="box"><summary class="hd" style="cursor:pointer"><h2 class="s">ตัดรายการแล้ว (' + cut.length + ')</h2><span class="ms" aria-hidden="true">expand_more</span></summary>' +
+        cut.map(r => row({ icon: catIcon(r.type, r.category), title: r.title, sub: r.endMonth ? 'ตัดตั้งแต่ ' + thMonth(r.endMonth, true) : 'ปิดใช้งาน', amount: fmt(r.amount), href: '#/recurring-edit?id=' + encodeURIComponent(r.id) })).join('') + '</details>' : '') +
+      '<a href="#/recurring-edit" class="btn"><span class="ms" aria-hidden="true">add</span>เพิ่มรายการประจำ</a>';
+  }
+});
+
+route('recurring-edit', {
+  form: true,
+  html(p) {
+    const r = p.id ? (App.data.recurring || []).find(x => x.id === p.id) : null;
+    if (p.id && !r) return topbar('รายการประจำ', '#/recurring') + '<div class="box empty">ไม่พบรายการ</div>';
+    const v = r || { type: 'รายจ่าย', amountMode: 'fixed', dayOfMonth: 25 };
+    const others = (App.data.recurring || []).filter(x => x.id !== (r && r.id) && !rcCut(x));
+    const plans = (App.data.accounts || []).filter(a => a.planType && isActive(a.active));
+    const hist = r ? (isOn(r.isSalary) ? careerOf('salary').map(c => ({ m: String(c.fromDate).slice(0, 7), a: c.amount, note: c.title })) :
+      (App.data.amountHistory || []).filter(h => h.recurringId === r.id).sort((a, b) => String(b.fromMonth).localeCompare(String(a.fromMonth))).map(h => ({ m: h.fromMonth, a: h.amount, note: h.note, id: h.id }))) : [];
+    return topbar(r ? 'แก้ไขรายการประจำ' : 'เพิ่มรายการประจำ', '#/recurring') +
+      field('rc_title', 'ชื่อรายการ', v.title || '', 'placeholder="เช่น เงินเดือน, ค่าเน็ต"') +
+      '<div class="fld"><div class="lbl">ประเภท</div><div class="grid3">' + chips('rc_type', ['รายรับ', 'ออม', 'รายจ่าย'], v.type) + '</div></div>' +
+      '<div class="fld"><label class="lbl" for="rc_cat">หมวดหมู่</label><select id="rc_cat" class="input"></select></div>' +
+      '<div class="fld"><div class="lbl">วิธีคิดยอด</div><div class="grid2">' + chips('rc_mode', Object.keys(RC_MODES).map(k => ({ value: k, label: '<span class="ms" aria-hidden="true">' + RC_MODES[k][1] + '</span>' + RC_MODES[k][0] })), rcMode(v)) + '</div></div>' +
+      '<div id="rc_srcbox">' + field('rc_src', 'ดึงยอดจากหมวด/ชื่อรายการเดือนก่อน', v.sourceCategory || '', 'list="rc_srcs" placeholder="เช่น น้ำมันรถ civic"') +
+      '<datalist id="rc_srcs">' + uniq((App.data.categories || []).filter(c => c.type === 'รายจ่าย').map(c => c.name).concat(App.data.titleSuggestions || [])).map(x => '<option value="' + esc(typeof x === 'object' ? x.title : x) + '">').join('') + '</datalist></div>' +
+      '<div class="grid2">' + field('rc_amt', 'ยอด (บาท)', v.amount || '', 'inputmode="decimal"') + field('rc_day', 'ทุกวันที่', v.dayOfMonth || 25, 'inputmode="numeric"') + '</div>' +
+      (r ? '<div class="box"><div class="hd"><h2>' + (isOn(r.isSalary) ? 'ประวัติขั้นเงินเดือน' : 'ประวัติการปรับยอด') + '</h2><button class="btn sm ghost" id="rc_adj"><span class="ms" aria-hidden="true">add</span>ปรับยอดใหม่</button></div>' +
+        (hist.length ? hist.map((h, i) => '<div class="row"><div class="grow"><div class="t">ตั้งแต่ ' + thMonth(h.m, true) + (h.note ? ' · ' + esc(h.note) : '') + '</div></div><div class="amt' + (i ? '' : ' in') + '">' + fmt(h.a) + '</div>' +
+          (h.id ? '<button class="icb" data-delh="' + esc(h.id) + '" aria-label="ลบประวัตินี้"><span class="ms" aria-hidden="true">close</span></button>' : '') + '</div>').join('') : '<div class="empty">ยังไม่เคยปรับ · ใช้ยอดด้านบน</div>') + '</div>' : '') +
+      '<div class="box">' +
+      switchRow('rc_sal', 'เป็นเงินเดือน', 'ยอดตามขั้นเงินเดือนใน "ข้อมูลของฉัน" · รายการหักเงินเดือนยืนยันพร้อมกัน', isOn(v.isSalary)) +
+      switchRow('rc_ded', 'หักจากเงินเดือน', 'ออม/หนี้ที่ถูกหักก่อนเข้าบัญชี', isOn(v.deductFromSalary)) +
+      '<div class="row" style="cursor:default"><div class="grow"><label class="t" for="rc_trig">ทำเมื่อยืนยันรายการ</label><div class="s">เช่น แชร์ ทำเมื่อยืนยันโอที (เดือนไหนไม่มีก็ข้าม)</div></div></div>' +
+      '<div style="padding:0 16px 12px"><select id="rc_trig" class="input"><option value="">— ไม่ผูก (ขึ้นรอยืนยันเอง) —</option>' + others.map(o => '<option value="' + esc(o.id) + '"' + (o.id === v.triggerId ? ' selected' : '') + '>' + esc(o.title) + '</option>').join('') + '</select></div>' +
+      '<div class="row" style="cursor:default"><div class="grow"><label class="t" for="rc_acc">ผูกกับบัญชีผ่อน/สะสม</label><div class="s">ยืนยันแล้วนับเป็นงวด/ยอดสะสมของบัญชีนั้น</div></div></div>' +
+      '<div style="padding:0 16px 12px"><select id="rc_acc" class="input"><option value="">— ไม่ผูก —</option>' + plans.map(a => '<option value="' + esc(a.id) + '"' + (a.id === v.accountId ? ' selected' : '') + '>' + esc(a.name) + '</option>').join('') + '</select></div></div>' +
+      field('rc_note', 'หมายเหตุ', v.note || '') +
+      '<div class="savebar"><div><button class="btn" id="rc_save">บันทึก</button>' +
+      (r ? (rcCut(r) ? '<button class="btn ghost" id="rc_back"><span class="ms" aria-hidden="true">replay</span>นำกลับมาใช้</button>' : '<button class="btn danger" id="rc_cut"><span class="ms" aria-hidden="true">block</span>ตัดรายการ</button>') : '') + '</div></div>' +
+      (r ? '<button class="btn danger" id="rc_del" style="margin-top:4px"><span class="ms" aria-hidden="true">delete</span>ลบถาวร (กรณีสร้างผิด)</button>' : '');
+  },
+  mount(p, el) {
+    const r = p.id ? (App.data.recurring || []).find(x => x.id === p.id) : null;
+    let type = r ? r.type : 'รายจ่าย', mode = r ? rcMode(r) : 'fixed';
+    const fillCats = () => {
+      const cats = (App.data.categories || []).filter(c => c.type === type);
+      $('#rc_cat', el).innerHTML = cats.map(c => '<option' + (r && c.name === r.category ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('');
+    };
+    const showSrc = () => { $('#rc_srcbox', el).hidden = mode !== 'lastMonth'; };
+    fillCats(); showSrc();
+    bindChips(el, 'rc_type', v => { type = v; fillCats(); });
+    bindChips(el, 'rc_mode', v => { mode = v; showSrc(); });
+    bindSwitch(el, 'rc_sal'); bindSwitch(el, 'rc_ded');
+    $('#rc_save', el).onclick = (e) => busy(e.currentTarget, async () => {
+      const title = $('#rc_title', el).value.trim();
+      if (!title) throw new Error('กรุณากรอกชื่อรายการ');
+      const day = Math.min(31, Math.max(1, num($('#rc_day', el).value) || 1));
+      if (mode === 'lastMonth' && !$('#rc_src', el).value.trim()) throw new Error('กรุณาระบุหมวดที่จะดึงยอดเดือนก่อน');
+      const rec = { id: r ? r.id : '', title, type, category: $('#rc_cat', el).value, amount: num($('#rc_amt', el).value), dayOfMonth: day, amountMode: mode,
+        sourceCategory: $('#rc_src', el).value.trim(), isSalary: swVal(el, 'rc_sal'), deductFromSalary: swVal(el, 'rc_ded'), triggerId: $('#rc_trig', el).value,
+        accountId: $('#rc_acc', el).value, note: $('#rc_note', el).value, active: true };
+      if (!r) rec.sort = 900;
+      await api('saveRecord', { table: 'Recurring', record: rec });
+      await refresh(); go('#/recurring');
+    }, 'บันทึกแล้ว').catch(() => {});
+    if (!r) return;
+    const adj = $('#rc_adj', el);
+    if (adj) adj.onclick = () => {
+      if (isOn(r.isSalary)) return editCareer({ kind: 'salary' }, () => render(true));
+      sheet('<h2>ปรับยอด "' + esc(r.title) + '"</h2>' + monthInput('ah_m', 'มีผลตั้งแต่เดือน', curMonth()) + field('ah_a', 'ยอดใหม่ (บาท)', '', 'inputmode="decimal"') + field('ah_n', 'หมายเหตุ', '', 'placeholder="เช่น เปลี่ยนโปรเน็ต"') +
+        '<button class="btn" id="ah_s">บันทึก</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
+        $('#ah_s', sh).onclick = (e) => busy(e.currentTarget, async () => {
+          const m = $('#ah_m', sh).value, a = num($('#ah_a', sh).value);
+          if (!m || a <= 0) throw new Error('กรุณาเลือกเดือนและกรอกยอด');
+          await api('saveRecord', { table: 'AmountHistory', record: { recurringId: r.id, fromMonth: m, amount: a, note: $('#ah_n', sh).value } });
+          if (m <= curMonth()) await api('saveRecord', { table: 'Recurring', record: { id: r.id, amount: a } }); // ยอดปัจจุบัน
+          await refresh(); close(); render(true);
+        }, 'ปรับยอดแล้ว').catch(() => {});
+      });
+    };
+    $$('[data-delh]', el).forEach(b => b.onclick = () => busy(b, async () => { await api('deleteRecord', { table: 'AmountHistory', id: b.dataset.delh }); await refresh(); render(true); }, 'ลบแล้ว').catch(() => {}));
+    const cut = $('#rc_cut', el);
+    if (cut) cut.onclick = () => sheet('<h2>ตัดรายการ "' + esc(r.title) + '"</h2><div class="s">หยุดขึ้นรอยืนยันตั้งแต่เดือนที่เลือก ประวัติเดิมยังอยู่</div>' + monthInput('ct_m', 'ตัดตั้งแต่เดือน', curMonth()) +
+      '<button class="btn" id="ct_s" style="background:var(--out)">ตัดรายการ</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
+      $('#ct_s', sh).onclick = (e) => busy(e.currentTarget, async () => {
+        await api('saveRecord', { table: 'Recurring', record: { id: r.id, endMonth: $('#ct_m', sh).value || curMonth() } });
+        await refresh(); close(); go('#/recurring');
+      }, 'ตัดรายการแล้ว').catch(() => {});
+    });
+    const back = $('#rc_back', el);
+    if (back) back.onclick = () => busy(back, async () => { await api('saveRecord', { table: 'Recurring', record: { id: r.id, endMonth: '', active: true } }); await refresh(); render(true); }, 'นำกลับมาใช้แล้ว').catch(() => {});
+    $('#rc_del', el).onclick = async () => {
+      if (!await confirmBox('ลบ "' + r.title + '" ถาวร? (รายการที่ยืนยันไปแล้วยังอยู่)', 'ลบ', true)) return;
+      try { showLoading('กำลังลบ…'); await api('deleteRecord', { table: 'Recurring', id: r.id }); await refresh(); go('#/recurring'); toast('ลบแล้ว'); } catch (e) { toast(e.message, 'err'); } finally { hideLoading(); }
+    };
+  }
+});
+
+/* ---------- คำนวณบัญชีผ่อน/สะสม ---------- */
+const PLAN_TYPES = { installment: ['ผ่อน', 'shopping_bag', 'หนี้สิน'], loan: ['หนี้มีดอกเบี้ย', 'credit_score', 'หนี้สิน'], saving: ['ออมสะสม', 'savings', 'ทรัพย์สิน'], share: ['แชร์', 'groups', 'ทรัพย์สิน'], invest: ['ลงทุน', 'trending_up', 'ทรัพย์สิน'] };
+const PAY_BY = { salary: 'หักเงินเดือน', transfer: 'โอน', card: 'บัตรเครดิต' };
+function planList(a) { try { const x = JSON.parse(a.plan || '[]'); return Array.isArray(x) ? x.filter(p => p.month && num(p.amount) > 0).sort((p, q) => p.month.localeCompare(q.month)) : []; } catch (e) { return []; } }
+function planTx(a) { return (App.data.accountTx || []).filter(t => t.accountId === a.id).sort((x, y) => String(x.date).localeCompare(String(y.date))); }
+
+// ตารางผ่อนหนี้ (ต้นคงที่+ดอก หรือ งวดเท่ากัน) พร้อมแผนโป๊ะ
+function loanSchedule(a, withPlan) {
+  const rate = num(a.interestRate) / 100 / 12, per = num(a.perPeriod), mode = a.loanMode === 'annuity' ? 'annuity' : 'fixed';
+  const extra = {}; if (withPlan) planList(a).forEach(p => { extra[p.month] = (extra[p.month] || 0) + num(p.amount); });
+  let bal = num(a.totalAmount), m = a.openingMonth || a.startMonth || curMonth();
+  const rows = [];
+  for (let i = 0; i < 720 && bal > 0.009; i++) {
+    const interest = round2(bal * rate);
+    let principal = mode === 'annuity' ? Math.max(0, per - interest) : per;
+    if (principal <= 0 && !extra[m]) { rows.push({ month: m, before: bal, principal: 0, interest, extra: 0, after: bal, stuck: true }); break; }
+    principal = Math.min(principal, bal);
+    const ex = Math.min(extra[m] || 0, bal - principal);
+    const after = round2(bal - principal - ex);
+    rows.push({ month: m, before: bal, principal: round2(principal), interest, extra: round2(ex), after });
+    bal = after; m = addMonth(m, 1);
+  }
+  return rows;
+}
+
+// ยอดออมจนเกษียณ (ปันผลคิดทบต้นรายเดือนแบบประมาณ)
+function savingProjection(a, balanceNow, withPlan) {
+  const end = retireMonth();
+  if (!end) return null;
+  const rate = num(a.dividendRate) / 100 / 12, plan = withPlan ? planList(a) : [];
+  const paidThis = planTx(a).some(t => t.month === curMonth());
+  let m = paidThis ? addMonth(curMonth(), 1) : curMonth(), bal = balanceNow, put = 0, div = 0;
+  const series = [{ m, v: bal }];
+  while (m <= end && series.length < 600) {
+    const p = plan.filter(x => x.month <= m).pop();
+    const amt = p ? num(p.amount) : num(a.perPeriod);
+    const d = bal * rate;
+    bal += amt + d; put += amt; div += d;
+    if (m.slice(5) === '12' || m === end) series.push({ m, v: bal });
+    m = addMonth(m, 1);
+  }
+  return { total: round2(bal), put: round2(put), dividend: round2(div), series, end };
+}
+
+function planCalc(a) {
+  const tx = planTx(a), cm = curMonth();
+  const txSum = tx.reduce((s, t) => s + num(t.amount), 0);
+  const paidThisMonth = tx.some(t => t.month === cm);
+  const t = a.planType, per = num(a.perPeriod);
+  const o = { a, tx, txSum, paidThisMonth, type: t };
+  if (t === 'installment' || t === 'share') {
+    o.periods = num(a.periods);
+    o.paid = num(a.paidPeriodsStart) + tx.length;
+    o.paidAmount = (num(a.paidAmountStart) || num(a.paidPeriodsStart) * per) + txSum;
+    o.total = num(a.totalAmount) || o.periods * per;
+    o.left = Math.max(0, o.periods - o.paid);
+    o.remaining = Math.max(0, round2(o.total - o.paidAmount));
+    o.pct = o.periods ? Math.min(100, Math.round(o.paid / o.periods * 100)) : 0;
+    o.endMonth = o.left > 0 ? addMonth(cm, o.left - (paidThisMonth ? 0 : 1)) : (tx.length ? tx[tx.length - 1].month : cm);
+    o.due = o.left > 0 && !paidThisMonth ? per : 0;
+    o.value = t === 'share' ? o.paidAmount : o.remaining;
+  } else if (t === 'loan') {
+    const rows = loanSchedule(a, true), base = loanSchedule(a, false);
+    const now = rows.find(r => r.month === cm) || (rows.length && rows[0].month > cm ? rows[0] : null);
+    o.rows = rows; o.base = base;
+    o.principal = now ? now.before : (rows.length ? 0 : num(a.totalAmount));
+    o.dueRow = rows.find(r => r.month === cm);
+    o.due = o.dueRow && !paidThisMonth ? round2(o.dueRow.principal + o.dueRow.interest) : 0;
+    o.endMonth = rows.length ? rows[rows.length - 1].month : cm;
+    o.baseEnd = base.length ? base[base.length - 1].month : cm;
+    o.interestTotal = round2(rows.reduce((s, r) => s + r.interest, 0));
+    o.interestSaved = round2(base.reduce((s, r) => s + r.interest, 0) - o.interestTotal);
+    o.stuck = rows.some(r => r.stuck);
+    o.pct = num(a.totalAmount) ? Math.min(100, Math.round((1 - o.principal / num(a.totalAmount)) * 100)) : 0;
+    o.value = o.principal;
+  } else {
+    o.balance = round2(num(a.paidAmountStart) + txSum);
+    o.count = num(a.paidPeriodsStart) + tx.length;
+    o.due = !paidThisMonth ? per : 0;
+    o.proj = savingProjection(a, o.balance, true);
+    o.projBase = savingProjection(a, o.balance, false);
+    o.value = o.balance;
+    o.pct = 100;
+  }
+  return o;
+}
+// มูลค่าที่ใช้ในหน้า ทรัพย์สิน/หนี้สิน (บัญชีที่ตั้งแผนไว้ คำนวณให้อัตโนมัติ)
+function accValue(a) { return a.planType && !isOn(a.closed) ? planCalc(a).value : num(a.value); }
+
+/* ---------- บัญชีผ่อน & สะสม ---------- */
+function planRowHtml(a) {
+  const c = planCalc(a), debt = a.planType === 'installment' || a.planType === 'loan';
+  const kind = debt ? 'out' : 'sav', color = debt ? '#B91C1C' : '#1D4ED8';
+  let line = '', right = '', sub2 = '';
+  if (a.planType === 'installment') { line = 'งวด ' + c.paid + '/' + c.periods + ' · หมด ' + thMonth(c.endMonth, true); right = 'เหลือ ' + fmt(c.remaining, 0); sub2 = c.left ? (c.due ? 'เดือนนี้ ' + fmt(c.due) : 'เดือนนี้จ่ายแล้ว ✓') : 'ผ่อนครบแล้ว'; }
+  else if (a.planType === 'share') { line = 'ส่งแล้ว ' + c.paid + '/' + c.periods + ' ครั้ง'; right = 'ส่ง ' + fmt(c.paidAmount, 0); sub2 = 'เหลือ ' + c.left + ' ครั้ง (' + fmt(c.remaining, 0) + ')'; }
+  else if (a.planType === 'loan') { line = 'หมด ' + thMonth(c.endMonth, true) + (num(a.interestRate) ? ' · ดอก ' + fmt(a.interestRate) + '%' : ''); right = 'เหลือ ' + fmt(c.principal, 0); sub2 = c.due ? 'เดือนนี้ ' + fmt(c.due) : (c.paidThisMonth ? 'เดือนนี้จ่ายแล้ว ✓' : '-'); }
+  else { line = 'ส่งแล้ว ' + c.count + ' ครั้ง'; right = 'สะสม ' + fmt(c.balance, 0); sub2 = 'เดือนละ ' + fmt(a.perPeriod); }
+  return '<a class="row" href="#/plan?id=' + encodeURIComponent(a.id) + '" style="align-items:flex-start"><div class="ic"><span class="ms" aria-hidden="true">' + PLAN_TYPES[a.planType][1] + '</span></div><div class="grow" style="display:flex;flex-direction:column;gap:6px">' +
+    '<div class="row-flex" style="justify-content:space-between"><div class="t">' + esc(a.name) + ' ' + (a.payBy ? rtag(a.payBy === 'salary' ? 'ded' : a.payBy === 'card' ? 'card' : 'var', PAY_BY[a.payBy]) : '') + '</div><div class="amt ' + kind + '" style="font-size:16px">' + right + '</div></div>' +
+    '<div class="bar"><div style="width:' + c.pct + '%;background:' + color + '"></div></div><div class="s row-flex" style="justify-content:space-between"><span>' + esc(line) + '</span><span>' + esc(sub2) + '</span></div></div></a>';
+}
+
+route('plans', {
+  form: true,
+  html() {
+    const list = (App.data.accounts || []).filter(a => a.planType && isActive(a.active) && !isOn(a.closed));
+    const debts = list.filter(a => a.planType === 'installment' || a.planType === 'loan'), savs = list.filter(a => !debts.includes(a));
+    const calcs = list.map(planCalc);
+    const due = calcs.filter(c => c.type === 'installment' || c.type === 'loan').reduce((s, c) => s + c.due, 0);
+    const debtLeft = calcs.filter(c => c.type === 'installment' || c.type === 'loan').reduce((s, c) => s + c.value, 0);
+    const closed = (App.data.accounts || []).filter(a => a.planType && isOn(a.closed));
+    return topbar('บัญชีผ่อน & สะสม', '#/assets', '<a href="#/plan-edit" class="icb" aria-label="เพิ่มบัญชี"><span class="ms" aria-hidden="true">add</span></a>') +
+      '<div class="box pad grid2"><div><div class="s">ต้องจ่ายเดือนนี้ (ผ่อน/หนี้)</div><div class="amt out" style="font-size:22px">' + fmt(due, 0) + '</div></div><div><div class="s">หนี้คงเหลือทั้งหมด</div><div class="amt out" style="font-size:22px">' + fmt(debtLeft, 0) + '</div></div></div>' +
+      '<div class="box"><div class="hd"><h2 class="out">ผ่อน / หนี้</h2></div>' + (debts.length ? debts.map(planRowHtml).join('') : '<div class="empty">ยังไม่มี · กด + เพื่อเพิ่ม</div>') + '</div>' +
+      '<div class="box"><div class="hd"><h2 class="sav">ออม / แชร์ / ลงทุน</h2></div>' + (savs.length ? savs.map(planRowHtml).join('') : '<div class="empty">ยังไม่มี · กด + เพื่อเพิ่ม</div>') + '</div>' +
+      (closed.length ? '<details class="box"><summary class="hd" style="cursor:pointer"><h2 class="s">ปิดบัญชีแล้ว (' + closed.length + ')</h2><span class="ms" aria-hidden="true">expand_more</span></summary>' + closed.map(a => row({ icon: 'task_alt', title: a.name, href: '#/plan?id=' + encodeURIComponent(a.id) })).join('') + '</details>' : '') +
+      '<a href="#/plan-edit" class="btn"><span class="ms" aria-hidden="true">add</span>เพิ่มบัญชีผ่อน / ออม / แชร์</a>';
+  }
+});
+
+function projChart(c) {
+  const a = c.proj, b = c.projBase;
+  if (!a || a.series.length < 2) return '';
+  const max = Math.max(...a.series.map(p => p.v), ...b.series.map(p => p.v)) || 1, n = a.series.length - 1;
+  const pts = (s) => s.map((p, i) => (i / n * 320 + 10).toFixed(1) + ',' + (110 - p.v / max * 100).toFixed(1)).join(' ');
+  return '<svg viewBox="0 0 340 120" width="100%" height="120" role="img" aria-label="กราฟยอดสะสมจนเกษียณ ตามแผน ' + fmt(a.total, 0) + ' บาท ออมเท่าเดิม ' + fmt(b.total, 0) + ' บาท">' +
+    '<polyline points="' + pts(b.series) + '" fill="none" stroke="#94A3B8" stroke-width="3" stroke-dasharray="6 5"/><polyline points="' + pts(a.series) + '" fill="none" stroke="#1D4ED8" stroke-width="3"/></svg>' +
+    '<div class="s row-flex" style="gap:16px;padding:0 16px 12px"><span><b style="color:#1D4ED8">━</b> ตามแผน</span><span><b style="color:#94A3B8">┅</b> ออมเท่าเดิม</span></div>';
+}
+function planEntriesHtml(a, cls) {
+  const list = planList(a);
+  return (list.length ? list.map((p, i) => '<div class="row"><div class="ic"><span class="ms" aria-hidden="true">event</span></div><div class="grow"><div class="t">' + (a.planType === 'loan' ? 'โป๊ะ ' : 'ตั้งแต่ ') + thMonth(p.month, true) + '</div></div><div class="amt ' + cls + '">' + fmt(p.amount) + '</div><button class="icb" data-delplan="' + i + '" aria-label="ลบแผนนี้"><span class="ms" aria-hidden="true">close</span></button></div>').join('') : '<div class="empty">ยังไม่มีแผน</div>');
+}
+
+route('plan', {
+  form: true,
+  html(p) {
+    const a = (App.data.accounts || []).find(x => x.id === p.id);
+    if (!a) return topbar('บัญชี', '#/plans') + '<div class="box empty">ไม่พบบัญชี</div>';
+    const c = planCalc(a), t = a.planType;
+    let body = '';
+    if (t === 'installment' || t === 'share') {
+      const isShare = t === 'share';
+      body = '<div class="box pad" style="display:flex;flex-direction:column;gap:10px"><div class="row-flex" style="justify-content:space-between"><div><div class="s">' + (isShare ? 'ส่งแล้ว' : 'จ่ายแล้ว') + '</div><div class="amt ' + (isShare ? 'sav' : 'out') + '" style="font-size:26px">' + fmt(c.paidAmount, 0) + '</div></div><div style="text-align:right"><div class="s">คงเหลือ</div><div class="amt" style="font-size:26px">' + fmt(c.remaining, 0) + '</div></div></div>' +
+        '<div class="bar"><div style="width:' + c.pct + '%;background:' + (isShare ? '#1D4ED8' : '#B91C1C') + '"></div></div><div class="s row-flex" style="justify-content:space-between"><span>' + c.paid + ' จาก ' + c.periods + (isShare ? ' ครั้ง' : ' งวด') + ' · ' + (isShare ? 'ครั้งละ ' : 'งวดละ ') + fmt(a.perPeriod) + '</span><span>' + (c.left ? 'หมด ' + thMonth(c.endMonth, true) : 'ครบแล้ว') + '</span></div></div>';
+    } else if (t === 'loan') {
+      const r = c.dueRow;
+      body = '<div class="box pad" style="display:flex;flex-direction:column;gap:8px"><div class="row-flex" style="justify-content:space-between"><div><div class="s">เงินต้นคงเหลือ</div><div class="amt out" style="font-size:26px">' + fmt(c.principal, 0) + '</div></div><div style="text-align:right"><div class="s">หมดหนี้</div><div class="amt" style="font-size:22px">' + thMonth(c.endMonth, true) + '</div></div></div>' +
+        '<div class="bar"><div style="width:' + c.pct + '%;background:#B91C1C"></div></div>' +
+        '<div class="kv"><span>ดอกเบี้ย</span><b>' + fmt(a.interestRate) + '% ต่อปี</b></div><div class="kv"><span>วิธีผ่อน</span><b>' + (a.loanMode === 'annuity' ? 'งวดเท่ากันทุกเดือน' : 'ส่งต้นคงที่ + ดอกตามยอดคงเหลือ') + '</b></div>' +
+        (c.stuck ? '<div class="err-text">ยอดผ่อนต่อเดือนน้อยกว่าดอกเบี้ย หนี้จะไม่ลดลง ตรวจสอบการตั้งค่า</div>' : '') + '</div>' +
+        (r ? '<div class="box"><div class="hd"><h2>งวดเดือนนี้ (' + thMonth(r.month, true) + ')' + (c.paidThisMonth ? ' ✓' : '') + '</h2></div><div style="padding:0 16px 14px"><div class="kv"><span>ส่งต้น</span><b>' + fmt(r.principal) + '</b></div><div class="kv"><span>ดอกเบี้ย</span><b class="out">' + fmt(r.interest) + '</b></div>' +
+          (r.extra ? '<div class="kv"><span>โป๊ะตามแผน</span><b class="in">' + fmt(r.extra) + '</b></div>' : '') + '<div class="kv total"><span>รวม' + (a.payBy === 'salary' ? 'หักเงินเดือน' : 'ต้องจ่าย') + '</span><b>' + fmt(r.principal + r.interest + r.extra) + '</b></div></div></div>' : '') +
+        '<div class="box"><div class="hd"><h2>แผนโป๊ะหนี้</h2><button class="icb" id="pl_add" aria-label="เพิ่มแผนโป๊ะ"><span class="ms" aria-hidden="true">add</span></button></div>' + planEntriesHtml(a, 'out') +
+        (planList(a).length ? '<div class="row" style="background:var(--in-bg);flex-direction:column;align-items:stretch;gap:2px;cursor:default"><div class="t in">ถ้าโป๊ะตามแผน</div><div class="kv"><span>หมดหนี้</span><b class="in">' + thMonth(c.endMonth, true) + ' (เร็วขึ้น ' + monthDiff(c.endMonth, c.baseEnd) + ' เดือน)</b></div><div class="kv"><span>ประหยัดดอกเบี้ย</span><b class="in">' + fmt(c.interestSaved, 0) + '</b></div></div>' : '') + '</div>' +
+        '<div class="box"><div class="hd"><h2>ตารางผ่อน</h2><span class="s">ดอกรวม ' + fmt(c.interestTotal, 0) + '</span></div><div class="sched"><div class="sh"><span>งวด</span><span>ต้น</span><span>ดอก</span><span>คงเหลือ</span></div>' +
+        c.rows.map((x, i) => '<div class="' + (x.month === curMonth() ? 'now' : x.extra ? 'pre' : '') + (i > 11 ? ' more' : '') + '"' + (i > 11 ? ' hidden' : '') + '><span>' + thMonth(x.month, true) + (x.extra ? ' ★' : '') + '</span><span>' + fmt(x.principal + x.extra, 0) + '</span><span>' + fmt(x.interest, 0) + '</span><span>' + fmt(x.after, 0) + '</span></div>').join('') + '</div>' +
+        (c.rows.length > 12 ? '<button class="btn ghost sm" id="pl_all" style="margin:0 16px 12px;width:calc(100% - 32px)">ดูทั้งหมด ' + c.rows.length + ' งวด</button>' : '') + '</div>';
+    } else {
+      const pj = c.proj, pb = c.projBase;
+      body = '<div class="box pad" style="display:flex;flex-direction:column;gap:6px"><div class="s">ยอดสะสมตอนนี้</div><div class="amt sav" style="font-size:28px">' + fmt(c.balance, 0) + '</div>' +
+        '<div class="kv"><span>ออมเดือนละ</span><b>' + fmt(a.perPeriod) + '</b></div><div class="kv"><span>ปันผล/ผลตอบแทน (ประมาณ)</span><b>' + fmt(a.dividendRate) + '% ต่อปี</b></div></div>' +
+        (pj ? '<div class="hero"><div style="font-size:15px;color:#CBD5E1">ถึงวันเกษียณ ' + thDate(retireDate(App.data.settings.birthDate)) + ' จะมีเงินสุทธิ</div><div style="font-size:34px;font-weight:700;line-height:1">฿' + fmt(pj.total, 0) + '</div>' +
+          '<div class="grid2" style="font-size:14px;color:#CBD5E1"><div>เงินที่ส่งเพิ่ม<br><b style="color:#fff;font-size:16px">' + fmt(pj.put, 0) + '</b></div><div>ปันผลสะสม<br><b style="color:#fff;font-size:16px">' + fmt(pj.dividend, 0) + '</b></div></div></div>'
+          : '<a class="box pad row-flex" href="#/profile" style="text-decoration:none;color:inherit"><span class="ms warn" aria-hidden="true">info</span><span>ใส่วันเกิดใน "ข้อมูลของฉัน" เพื่อคำนวณยอดตอนเกษียณ</span></a>') +
+        '<div class="box"><div class="hd"><h2>แผนปรับยอดออม</h2><button class="icb" id="pl_add" aria-label="เพิ่มแผน"><span class="ms" aria-hidden="true">add</span></button></div>' + planEntriesHtml(a, 'sav') +
+        (pj && planList(a).length ? '<div class="row" style="background:var(--in-bg);cursor:default"><div class="grow"><div class="t in">ถ้าทำตามแผน</div><div class="s">เทียบกับออม ' + fmt(a.perPeriod) + ' เท่าเดิม</div></div><div class="amt in">' + (pj.total - pb.total >= 0 ? '+' : '−') + fmt(Math.abs(pj.total - pb.total), 0) + '</div></div>' : '') + '</div>' +
+        (pj ? '<div class="box"><div class="hd"><h2>ยอดสะสมจนเกษียณ</h2></div>' + projChart(c) + '</div>' : '');
+    }
+    // ประวัติ (แชร์ แสดงเดือนที่ไม่ได้ส่งด้วย)
+    const tx = c.tx.slice().reverse();
+    let hist = tx.map((x, i) => ({ html: '<div class="row"><div class="num">' + (c.tx.length - i + num(a.paidPeriodsStart)) + '</div><div class="grow"><div class="t">' + thDate(x.date) + '</div><div class="s">' + esc(x.groupId ? 'พร้อม' + (((App.data.recurring || []).find(r => r.id === x.groupId) || {}).title || 'รายการอื่น') : x.title) + '</div></div><div class="amt sav">' + fmt(x.amount) + '</div></div>', m: x.month }));
+    // เดือนที่ไม่ได้ส่ง: นับเฉพาะตั้งแต่เริ่มใช้แอป (ก่อนหน้านั้นอยู่ในยอดยกมา)
+    const since = [a.startMonth, a.openingMonth, (App.data.settings.openingDate || '').slice(0, 7), c.tx.length ? c.tx[0].month : ''].filter(Boolean).sort().pop();
+    if (t === 'share' && since && (a.openingMonth || App.data.settings.openingDate || c.tx.length)) {
+      const have = {}; c.tx.forEach(x => { have[x.month] = 1; });
+      for (let m = curMonth(); m >= since && monthDiff(m, curMonth()) < 36; m = addMonth(m, -1)) {
+        if (!have[m] && m < curMonth()) hist.push({ m, html: '<div class="row" style="background:var(--bg)"><div class="num off"><span class="ms" aria-hidden="true">remove</span></div><div class="grow"><div class="t s">' + thMonth(m, true) + '</div><div class="s">ไม่ได้ส่ง</div></div></div>' });
+      }
+      hist.sort((x, y) => y.m.localeCompare(x.m));
+    }
+    return topbar(a.name, '#/plans', '<a href="#/plan-edit?id=' + encodeURIComponent(a.id) + '" class="icb" aria-label="ตั้งค่าบัญชี"><span class="ms" aria-hidden="true">settings</span></a>') + body +
+      '<div class="box"><div class="hd"><h2>ประวัติ' + (t === 'share' ? 'การส่ง' : t === 'saving' || t === 'invest' ? 'การฝาก' : 'การจ่าย') + '</h2><span class="s">' + c.tx.length + ' ครั้งในแอป' + (num(a.paidPeriodsStart) ? ' + ยกมา ' + num(a.paidPeriodsStart) : '') + '</span></div>' +
+      (hist.length ? hist.map(h => h.html).join('') : '<div class="empty">ยังไม่มี · ยืนยันรายการประจำที่ผูกกับบัญชีนี้ หรือบันทึกเอง</div>') + '</div>' +
+      '<button class="btn ghost" id="pl_pay"><span class="ms" aria-hidden="true">add</span>บันทึกการ' + (t === 'share' ? 'ส่ง' : t === 'saving' || t === 'invest' ? 'ฝาก' : 'จ่าย') + 'เพิ่มเอง</button>';
+  },
+  mount(p, el) {
+    const a = (App.data.accounts || []).find(x => x.id === p.id);
+    if (!a) return;
+    const savePlan = async (list) => { await api('saveRecord', { table: 'Accounts', record: { id: a.id, plan: JSON.stringify(list) } }); await refresh(); render(true); };
+    const add = $('#pl_add', el);
+    if (add) add.onclick = () => sheet('<h2>' + (a.planType === 'loan' ? 'เพิ่มแผนโป๊ะหนี้' : 'ปรับยอดออม') + '</h2>' + monthInput('pa_m', a.planType === 'loan' ? 'เดือนที่โป๊ะ' : 'ตั้งแต่เดือน', addMonth(curMonth(), 1)) +
+      field('pa_a', a.planType === 'loan' ? 'ยอดโป๊ะ (บาท)' : 'ออมเดือนละ (บาท)', '', 'inputmode="decimal"') + '<button class="btn" id="pa_s">เพิ่มแผน</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
+      $('#pa_s', sh).onclick = (e) => busy(e.currentTarget, async () => {
+        const m = $('#pa_m', sh).value, amt = num($('#pa_a', sh).value);
+        if (!m || amt <= 0) throw new Error('กรุณาเลือกเดือนและกรอกยอด');
+        close(); await savePlan(planList(a).concat([{ month: m, amount: amt }]));
+      }, 'เพิ่มแผนแล้ว').catch(() => {});
+    });
+    $$('[data-delplan]', el).forEach(b => b.onclick = () => busy(b, () => savePlan(planList(a).filter((x, i) => i !== Number(b.dataset.delplan))), 'ลบแผนแล้ว').catch(() => {}));
+    const all = $('#pl_all', el);
+    if (all) all.onclick = () => { $$('.sched .more', el).forEach(x => { x.hidden = false; }); all.remove(); };
+    $('#pl_pay', el).onclick = () => sheet('<h2>บันทึก ' + esc(a.name) + '</h2>' + field('pp_a', 'ยอด (บาท)', a.perPeriod || '', 'inputmode="decimal"') + dateField('pp_d', 'วันที่', todayStr()) +
+      '<button class="btn" id="pp_s">บันทึก</button><button class="btn ghost" data-close>ยกเลิก</button>', (sh, close) => {
+      $('#pp_s', sh).onclick = (e) => busy(e.currentTarget, async () => {
+        const debt = a.planType === 'installment' || a.planType === 'loan';
+        await api('saveRecord', { table: 'Transactions', record: { date: $('#pp_d', sh).value, type: debt ? 'รายจ่าย' : 'ออม', category: debt ? 'ผ่อนหนี้' : (a.planType === 'share' ? 'แชร์' : 'อื่นๆ'), title: a.name, amount: num($('#pp_a', sh).value), accountId: a.id } });
+        await refresh(); close(); render(true);
+      }, 'บันทึกแล้ว').catch(() => {});
+    });
+  }
+});
+
+route('plan-edit', {
+  form: true,
+  html(p) {
+    const a = p.id ? (App.data.accounts || []).find(x => x.id === p.id) : null;
+    const v = a || { planType: p.type || 'installment', payBy: 'transfer', loanMode: 'fixed', startMonth: curMonth(), openingMonth: curMonth() };
+    return topbar(a ? 'ตั้งค่าบัญชี' : 'เพิ่มบัญชี', a ? '#/plan?id=' + encodeURIComponent(a.id) : '#/plans') +
+      field('pe_name', 'ชื่อบัญชี', v.name || '', 'placeholder="เช่น ผ่อน Shopee, หนี้สหกรณ์"') +
+      '<div class="fld"><div class="lbl">ประเภท</div><div class="grid2" id="pe_types">' + chips('pe_t', Object.keys(PLAN_TYPES).map(k => ({ value: k, label: '<span class="ms" aria-hidden="true">' + PLAN_TYPES[k][1] + '</span>' + PLAN_TYPES[k][0] })), v.planType) + '</div></div>' +
+      '<div id="pe_fields"></div>' +
+      '<div class="fld"><div class="lbl">จ่าย/ส่งด้วย</div><div class="grid3">' + chips('pe_pay', Object.keys(PAY_BY).map(k => ({ value: k, label: PAY_BY[k] })), v.payBy || 'transfer') + '</div></div>' +
+      '<div id="pe_calc" class="calcbox"></div>' +
+      (a ? '' : '<div class="box">' + switchRow('pe_rc', 'สร้างรายการประจำให้ด้วย', 'ขึ้นรอยืนยันทุกเดือน (ผูกกับบัญชีนี้)', true) + '</div>') +
+      field('pe_note', 'หมายเหตุ', v.note || '') +
+      '<div class="savebar"><div><button class="btn" id="pe_save">บันทึก</button>' + (a ? (isOn(a.closed) ? '<button class="btn ghost" id="pe_open">เปิดบัญชีอีกครั้ง</button>' : '<button class="btn danger" id="pe_close"><span class="ms" aria-hidden="true">task_alt</span>ปิดบัญชี (ผ่อนหมด/เลิกส่ง)</button>') : '') + '</div></div>';
+  },
+  mount(p, el) {
+    const a = p.id ? (App.data.accounts || []).find(x => x.id === p.id) : null;
+    const v = Object.assign({ planType: p.type || 'installment', payBy: 'transfer', loanMode: 'fixed', startMonth: curMonth(), openingMonth: curMonth() }, a || {});
+    let type = v.planType, payBy = v.payBy || 'transfer', loanMode = v.loanMode || 'fixed';
+    const n = (id) => num(($('#' + id, el) || {}).value);
+    const s = (id) => (($('#' + id, el) || {}).value || '');
+    const draw = () => {
+      const f = [];
+      if (type === 'installment') f.push(field('pe_total', 'ยอดรวมทั้งหมด', v.totalAmount || '', 'inputmode="decimal"'), field('pe_per', 'จ่ายต่องวด', v.perPeriod || '', 'inputmode="decimal"'), field('pe_periods', 'จำนวนงวด', v.periods || '', 'inputmode="numeric"'), field('pe_rate', 'ดอกเบี้ย %/ปี', v.interestRate || 0, 'inputmode="decimal"'), monthInput('pe_start', 'เริ่มงวดแรก', v.startMonth), field('pe_paid', 'จ่ายไปแล้ว (งวด)', v.paidPeriodsStart || 0, 'inputmode="numeric"'));
+      if (type === 'share') f.push(field('pe_per', 'ส่งครั้งละ', v.perPeriod || '', 'inputmode="decimal"'), field('pe_periods', 'ทั้งหมดกี่ครั้ง', v.periods || '', 'inputmode="numeric"'), monthInput('pe_start', 'เริ่มส่งเดือน', v.startMonth), field('pe_paid', 'ส่งไปแล้ว (ครั้ง)', v.paidPeriodsStart || 0, 'inputmode="numeric"'));
+      if (type === 'saving' || type === 'invest') f.push(field('pe_per', 'ออมเดือนละ', v.perPeriod || '', 'inputmode="decimal"'), field('pe_div', type === 'invest' ? 'ผลตอบแทน %/ปี (ประมาณ)' : 'ปันผล %/ปี (ประมาณ)', v.dividendRate || 0, 'inputmode="decimal"'), field('pe_amtstart', 'ยอดสะสมยกมา', v.paidAmountStart || 0, 'inputmode="decimal"'), field('pe_paid', 'ส่งไปแล้ว (ครั้ง)', v.paidPeriodsStart || 0, 'inputmode="numeric"'));
+      if (type === 'loan') f.push(field('pe_total', 'เงินต้นคงเหลือ', v.totalAmount || '', 'inputmode="decimal"'), monthInput('pe_open', 'ณ ต้นเดือน', v.openingMonth || curMonth()), field('pe_rate', 'ดอกเบี้ย %/ปี', v.interestRate || '', 'inputmode="decimal"'), field('pe_per', loanMode === 'annuity' ? 'จ่ายต่องวด (ต้น+ดอก)' : 'ส่งต้นต่องวด', v.perPeriod || '', 'inputmode="decimal"'));
+      $('#pe_fields', el).innerHTML = (type === 'loan' ? '<div class="fld"><div class="lbl">วิธีผ่อน</div><div class="grid2">' + chips('pe_lm', [{ value: 'fixed', label: 'ต้นคงที่ + ดอก' }, { value: 'annuity', label: 'งวดเท่ากันทุกเดือน' }], loanMode) + '</div></div>' : '') + '<div class="grid2">' + f.join('') + '</div>';
+      bindChips(el, 'pe_lm', x => { keep(); loanMode = x; draw(); });
+      $$('#pe_fields input', el).forEach(i => i.addEventListener('input', calc));
+      calc();
+    };
+    // จำค่าที่กรอกไว้ก่อนวาดช่องใหม่
+    const keep = () => { const m = { pe_total: 'totalAmount', pe_per: 'perPeriod', pe_periods: 'periods', pe_rate: 'interestRate', pe_start: 'startMonth', pe_paid: 'paidPeriodsStart', pe_div: 'dividendRate', pe_amtstart: 'paidAmountStart', pe_open: 'openingMonth' }; Object.keys(m).forEach(id => { const i = $('#' + id, el); if (i) v[m[id]] = i.value; }); };
+    const build = () => {
+      keep();
+      return Object.assign({}, a || {}, { planType: type, payBy, loanMode, kind: PLAN_TYPES[type][2], name: s('pe_name').trim(), note: s('pe_note'),
+        totalAmount: num(v.totalAmount), perPeriod: num(v.perPeriod), periods: num(v.periods), interestRate: num(v.interestRate), startMonth: v.startMonth || '', paidPeriodsStart: num(v.paidPeriodsStart),
+        dividendRate: num(v.dividendRate), paidAmountStart: num(v.paidAmountStart), openingMonth: v.openingMonth || '', monthlyAmount: num(v.perPeriod), group: PLAN_TYPES[type][0] });
+    };
+    const calc = () => {
+      const b = build(); let t = '';
+      if (!b.perPeriod) { $('#pe_calc', el).innerHTML = ''; return; }
+      const c = planCalc(Object.assign({ id: (a && a.id) || '__new__', plan: (a && a.plan) || '[]' }, b));
+      if (type === 'installment') t = 'เหลือ ' + c.left + ' งวด · ผ่อนหมด <b>' + thMonth(c.endMonth, true) + '</b> · คงเหลือ ' + fmt(c.remaining, 0);
+      if (type === 'share') t = 'เหลือ ' + c.left + ' ครั้ง (' + fmt(c.remaining, 0) + ')';
+      if (type === 'loan') t = c.stuck ? 'ยอดผ่อนน้อยกว่าดอกเบี้ย หนี้ไม่ลด' : 'หมดหนี้ <b>' + thMonth(c.endMonth, true) + '</b> · ดอกเบี้ยรวม ' + fmt(c.interestTotal, 0) + (c.dueRow ? ' · เดือนนี้ ต้น ' + fmt(c.dueRow.principal, 0) + ' + ดอก ' + fmt(c.dueRow.interest, 0) : '');
+      if ((type === 'saving' || type === 'invest') && c.projBase) t = 'ถึงเกษียณ ' + thMonth(c.projBase.end, true) + ' จะมีประมาณ <b>' + fmt(c.projBase.total, 0) + '</b>';
+      $('#pe_calc', el).innerHTML = t ? '<div class="t sav">คำนวณให้</div><div class="s" style="color:var(--ink2)">' + t + '</div>' : '';
+    };
+    draw();
+    bindChips(el, 'pe_t', x => { keep(); type = x; draw(); });
+    bindChips(el, 'pe_pay', x => { payBy = x; });
+    bindSwitch(el, 'pe_rc');
+    $('#pe_save', el).onclick = (e) => busy(e.currentTarget, async () => {
+      const rec = build();
+      if (!rec.name) throw new Error('กรุณากรอกชื่อบัญชี');
+      if (!rec.perPeriod) throw new Error('กรุณากรอกยอดต่องวด/ต่อเดือน');
+      if ((type === 'installment' || type === 'share') && !rec.periods) throw new Error('กรุณากรอกจำนวนงวด/ครั้ง');
+      if (type === 'loan' && !rec.totalAmount) throw new Error('กรุณากรอกเงินต้นคงเหลือ');
+      rec.active = true; if (!a) { rec.sort = 900; rec.closed = false; }
+      const saved = await api('saveRecord', { table: 'Accounts', record: rec });
+      if (!a && swVal(el, 'pe_rc')) {
+        const debt = type === 'installment' || type === 'loan';
+        await api('saveRecord', { table: 'Recurring', record: { title: rec.name, type: debt ? 'รายจ่าย' : 'ออม', category: debt ? 'ผ่อนหนี้' : type === 'share' ? 'แชร์' : type === 'invest' ? 'กองทุน' : 'หุ้นสหกรณ์',
+          amount: rec.perPeriod, dayOfMonth: 25, amountMode: type === 'invest' ? 'multi' : type === 'loan' ? 'variable' : 'fixed', deductFromSalary: payBy === 'salary', accountId: saved.id, active: true, sort: 900 } });
+      }
+      await refresh(); go('#/plan?id=' + encodeURIComponent(saved.id));
+    }, 'บันทึกแล้ว').catch(() => {});
+    const cl = $('#pe_close', el);
+    if (cl) cl.onclick = async () => {
+      if (!await confirmBox('ปิดบัญชี "' + a.name + '"? รายการประจำที่ผูกไว้จะถูกตัดด้วย', 'ปิดบัญชี', true)) return;
+      busy(cl, async () => {
+        await api('saveRecord', { table: 'Accounts', record: { id: a.id, closed: true } });
+        for (const r of (App.data.recurring || []).filter(x => x.accountId === a.id && !rcCut(x))) await api('saveRecord', { table: 'Recurring', record: { id: r.id, endMonth: addMonth(curMonth(), 1) } });
+        await refresh(); go('#/plans');
+      }, 'ปิดบัญชีแล้ว').catch(() => {});
+    };
+    const op = $('#pe_open', el);
+    if (op) op.onclick = () => busy(op, async () => { await api('saveRecord', { table: 'Accounts', record: { id: a.id, closed: false } }); await refresh(); render(true); }, 'เปิดบัญชีแล้ว').catch(() => {});
+  }
+});
+
+/* ---------- ยอดยกมา ---------- */
+route('opening', {
+  form: true,
+  html() {
+    const s = App.data.settings || {};
+    const def = s.openingDate || addMonth(curMonth(), 1) + '-01';
+    const pumps = D.activePumps(), cards = D.activeCards();
+    const accs = (App.data.accounts || []).filter(a => isActive(a.active) && !isOn(a.closed));
+    const inp = (id, label, val) => '<div class="fld" style="gap:2px"><label class="s" for="' + id + '" style="font-size:13px">' + label + '</label><input class="input sm" id="' + id + '" inputmode="decimal" value="' + esc(val === undefined || val === '' || val === 0 ? '' : val) + '" placeholder="0"></div>';
+    const blk = (icon, name, fields) => '<div class="row" style="align-items:flex-start;cursor:default"><div class="ic"><span class="ms" aria-hidden="true">' + icon + '</span></div><div class="grow" style="display:flex;flex-direction:column;gap:6px"><div class="t">' + esc(name) + '</div><div class="grid' + Math.min(3, fields.length) + '">' + fields.join('') + '</div></div></div>';
+    const accFields = (a) => {
+      const t = a.planType;
+      if (t === 'installment' || t === 'share') return [inp('op_pp_' + a.id, t === 'share' ? 'ส่งแล้ว (ครั้ง)' : 'จ่ายแล้ว (งวด)', a.paidPeriodsStart), inp('op_pa_' + a.id, 'ยอดที่จ่าย/ส่งแล้ว', a.paidAmountStart)];
+      if (t === 'saving' || t === 'invest') return [inp('op_pa_' + a.id, 'ยอดสะสม', a.paidAmountStart), inp('op_pp_' + a.id, 'ส่งแล้ว (ครั้ง)', a.paidPeriodsStart)];
+      if (t === 'loan') return [inp('op_ta_' + a.id, 'เงินต้นคงเหลือ', a.totalAmount)];
+      return [inp('op_v_' + a.id, a.kind === 'หนี้สิน' ? 'ยอดหนี้คงเหลือ' : 'มูลค่า', a.value)];
+    };
+    return topbar('ยอดยกมา', '#/settings') +
+      '<div class="infobox"><span class="ms" aria-hidden="true">info</span><span>กรอกยอด ณ วันเริ่มใช้ จากระบบเดิม กรอกครั้งเดียว แก้แล้วกดบันทึกซ้ำได้ · ช่องที่เว้นว่าง = ไม่เปลี่ยน</span></div>' +
+      dateField('op_date', 'วันที่เริ่มใช้ (ยอด ณ วันนี้)', def) +
+      '<div class="sec">ตู้น้ำมัน</div><div class="box">' + (pumps.length ? pumps.map(p => { const st = (App.data.pumpStatus || []).find(x => x.pumpId === p.id) || {}; return blk('local_gas_station', p.name, [inp('op_l_' + p.id, 'ลิตรคงเหลือ', ''), inp('op_c_' + p.id, 'ต้นทุน/ลิตร', ''), inp('op_m_' + p.id, 'มิเตอร์ล่าสุด', '')]) + (st.stock ? '<div class="s" style="padding:0 16px 10px 68px">ตอนนี้ในระบบ ' + fmt(st.stock) + ' ลิตร</div>' : ''); }).join('') : '<a class="empty" href="#/fuel" style="display:block">ยังไม่มีตู้ · เพิ่มที่หน้าตู้น้ำมัน</a>') + '</div>' +
+      '<div class="sec">บัตร (แต้มคงเหลือ)</div><div class="box">' + (cards.length ? cards.map(c => { const st = D.cardStatus(c.id) || {}; return blk(c.brand === 'เครดิต' ? 'credit_card' : 'loyalty', c.name + (c.owner ? ' · ' + c.owner : ''), [inp('op_p_' + c.id, 'แต้มคงเหลือ' + (st.points ? ' (ตอนนี้ ' + fmt(st.points, 0) + ')' : ''), '')]); }).join('') : '<a class="empty" href="#/cards" style="display:block">ยังไม่มีบัตร · เพิ่มที่หน้าบัตร</a>') + '</div>' +
+      '<div class="sec">ทรัพย์สิน / ออม / หนี้ / ผ่อน / แชร์</div><div class="box">' + (accs.length ? accs.map(a => blk(a.planType ? PLAN_TYPES[a.planType][1] : groupIcon(a), a.name, accFields(a))).join('') : '<a class="empty" href="#/plans" style="display:block">ยังไม่มีบัญชี · เพิ่มที่หน้าบัญชีผ่อน & สะสม หรือหน้าทรัพย์สิน</a>') + '</div>' +
+      '<div class="savebar"><div><button class="btn" id="op_save"><span class="ms" aria-hidden="true">check</span>บันทึกยอดยกมา</button></div></div>';
+  },
+  mount(p, el) {
+    const val = (id) => { const i = $('#' + id, el); return i && i.value.trim() !== '' ? num(i.value) : ''; };
+    $('#op_save', el).onclick = (e) => busy(e.currentTarget, async () => {
+      const date = $('#op_date', el).value;
+      const pumps = D.activePumps().map(p => ({ pumpId: p.id, liters: val('op_l_' + p.id), costPerLiter: val('op_c_' + p.id), meter: val('op_m_' + p.id) })).filter(x => x.liters !== '' || x.meter !== '');
+      if (pumps.some(x => x.liters !== '' && !x.costPerLiter)) throw new Error('กรุณากรอกต้นทุน/ลิตร ของตู้ที่กรอกลิตรคงเหลือ');
+      const cards = D.activeCards().map(c => ({ cardId: c.id, points: val('op_p_' + c.id) })).filter(x => x.points !== '');
+      const accounts = (App.data.accounts || []).filter(a => isActive(a.active)).map(a => ({ id: a.id, value: val('op_v_' + a.id), paidPeriodsStart: val('op_pp_' + a.id), paidAmountStart: val('op_pa_' + a.id), totalAmount: val('op_ta_' + a.id) }))
+        .filter(x => x.value !== '' || x.paidPeriodsStart !== '' || x.paidAmountStart !== '' || x.totalAmount !== '');
+      if (!pumps.length && !cards.length && !accounts.length) throw new Error('ยังไม่ได้กรอกยอดใดเลย');
+      await api('saveOpening', { date, pumps, cards, accounts });
+      await refresh(); go('#/home');
+    }, 'บันทึกยอดยกมาแล้ว').catch(() => {});
+  }
+});
+
+/* ---------- ประวัติรับราชการ (อยู่บนหน้า ข้อมูลของฉัน) ---------- */
+const CAREER_KINDS = { rank: ['ยศ', 'military_tech'], position: ['ตำแหน่ง', 'work'], salary: ['ขั้นเงินเดือน', 'payments'], decoration: ['เครื่องราชฯ', 'workspace_premium'] };
+function careerHtml() {
+  const s = App.data.settings || {};
+  const rank = careerOf('rank')[0], pos = careerOf('position')[0];
+  const today = todayStr(), ret = retireDate(s.birthDate);
+  const age = yearsMonths(s.birthDate, today), svc = yearsMonths(s.serviceDate, today), left = ret ? yearsMonths(today, ret) : null;
+  const name = [rank ? rank.title : '', s.firstName, s.lastName].filter(Boolean).join(' ');
+  const tl = (kind) => {
+    const list = careerOf(kind);
+    const salaryHint = kind === 'salary' && (App.data.recurring || []).some(r => isOn(r.isSalary)) ? '<div class="linkhint" style="margin:0 16px 8px"><span class="ms" aria-hidden="true">link</span>ผูกกับรายการประจำ "เงินเดือน" อัตโนมัติ</div>' : '';
+    return '<div class="box"><div class="hd"><h2>' + CAREER_KINDS[kind][0] + (kind === 'rank' ? ' (บันทึกประวัติ)' : '') + '</h2><button class="icb" data-addc="' + kind + '" aria-label="เพิ่ม' + CAREER_KINDS[kind][0] + '"><span class="ms" aria-hidden="true">add</span></button></div>' + salaryHint +
+      (list.length ? list.map((c, i) => {
+        const next = kind === 'decoration' && num(c.yearsToNext) ? ' · ขอชั้นถัดไปได้ ' + (Number(String(c.fromDate).slice(0, 4)) + num(c.yearsToNext) + 543) : '';
+        const until = i ? ' – ' + thDate(list[i - 1].fromDate) : '';
+        return '<button class="tl" data-editc="' + esc(c.id) + '"><span class="dot' + (i ? '' : ' now') + '"></span><span class="grow"><span class="t">' + esc(c.title) + (kind === 'salary' && num(c.amount) ? ' · ' + fmt(c.amount) : '') + '</span><span class="s">' + (i ? thDate(c.fromDate) + until : 'ตั้งแต่ ' + thDate(c.fromDate)) + next + (c.note ? ' · ' + esc(c.note) : '') + '</span></span></button>';
+      }).join('') : '<div class="empty">ยังไม่มี</div>') + '</div>';
+  };
+  return '<div class="box pad row-flex" style="gap:14px"><div style="position:relative;flex:none">' + avatarHtml(72, s.photoUrl, 'role="img" aria-label="รูปโปรไฟล์"') +
+    '<button class="icb" id="pf_photo" aria-label="เปลี่ยนรูป" style="position:absolute;right:-6px;bottom:-6px;width:34px;height:34px;border:3px solid #fff;background:#0F172A;color:#fff"><span class="ms" aria-hidden="true" style="font-size:18px">photo_camera</span></button></div>' +
+    '<div class="grow" style="min-width:0"><div style="font-size:19px;font-weight:700">' + esc(name || s.nickname || 'ใส่ยศ ชื่อ นามสกุล') + '</div><div class="s">' + esc([pos ? pos.title : '', s.unitName].filter(Boolean).join(' · ') || 'ยังไม่ระบุตำแหน่ง') + '</div></div>' +
+    '<button class="icb outline" id="pf_me" aria-label="แก้ไขข้อมูลส่วนตัว"><span class="ms" aria-hidden="true">edit</span></button></div>' +
+    '<div class="box pad grid3" style="text-align:center"><div><div class="s">อายุ</div><div class="amt">' + (age ? age.y + ' ปี' : '-') + '</div></div><div><div class="s">อายุราชการ</div><div class="amt">' + (svc ? svc.y + ' ปี' : '-') + '</div></div><div><div class="s">เกษียณ</div><div class="amt warn">' + (ret ? thDate(ret) : '-') + '</div></div></div>' +
+    '<div class="box pad"><div class="kv"><span>วันเกิด</span><b>' + (s.birthDate ? thDate(s.birthDate) : '-') + '</b></div><div class="kv"><span>บรรจุรับราชการ</span><b>' + (s.serviceDate ? thDate(s.serviceDate) : '-') + '</b></div>' +
+    '<div class="kv"><span>อายุราชการ</span><b>' + ymText(svc) + '</b></div><div class="kv"><span>เหลือก่อนเกษียณ</span><b class="warn">' + ymText(left) + '</b></div></div>' +
+    tl('rank') + tl('position') + tl('salary') + tl('decoration');
+}
+
+function editMe(done) {
+  const s = App.data.settings || {};
+  sheet('<h2>ข้อมูลส่วนตัว</h2><div class="grid2">' + field('me_fn', 'ชื่อ', s.firstName || '') + field('me_ln', 'นามสกุล', s.lastName || '') + '</div>' + field('me_nick', 'ชื่อเล่น (แสดงหน้าแรก)', s.nickname || '') + field('me_unit', 'สังกัด', s.unitName || '', 'placeholder="เช่น บก.อก.ภ.7"') +
+    dateField('me_birth', 'วันเกิด', s.birthDate || '') + dateField('me_svc', 'วันที่บรรจุรับราชการ', s.serviceDate || '') +
+    '<div class="s">ยศ/ตำแหน่ง เพิ่มในหัวข้อด้านล่าง (เก็บเป็นประวัติ)</div><button class="btn" id="me_s">บันทึก</button><button class="btn ghost" data-close>ยกเลิก</button>', (el, close) => {
+    $('#me_s', el).onclick = (e) => busy(e.currentTarget, async () => {
+      await api('saveSettings', { values: { firstName: $('#me_fn', el).value.trim(), lastName: $('#me_ln', el).value.trim(), nickname: $('#me_nick', el).value.trim(), unitName: $('#me_unit', el).value.trim(), birthDate: $('#me_birth', el).value, serviceDate: $('#me_svc', el).value } });
+      await refresh(); close(); (done || (() => render(true)))();
+    }, 'บันทึกแล้ว').catch(() => {});
+  });
+}
+
+function editCareer(c, done) {
+  const k = c.kind, label = CAREER_KINDS[k][0];
+  const ph = { rank: 'เช่น ด.ต.', position: 'เช่น ผบ.หมู่ งานธุรการ', salary: 'เช่น ส1(23)', decoration: 'เช่น บ.ม.' }[k];
+  sheet('<h2>' + (c.id ? 'แก้ไข' : 'เพิ่ม') + label + '</h2>' + field('cr_t', label, c.title || '', 'placeholder="' + ph + '"') + dateField('cr_d', k === 'salary' ? 'มีผลตั้งแต่' : k === 'decoration' ? 'วันที่ได้รับ' : 'ตั้งแต่วันที่', c.fromDate || todayStr()) +
+    (k === 'salary' ? field('cr_a', 'เงินเดือน (บาท)', c.amount || '', 'inputmode="decimal"') + '<div class="s">รายการประจำ "เงินเดือน" จะใช้ยอดนี้ตั้งแต่เดือนที่มีผล</div>' : '') +
+    (k === 'decoration' ? field('cr_y', 'ครองชั้นนี้กี่ปี จึงขอชั้นถัดไปได้ (ตั้งเอง)', c.yearsToNext || '', 'inputmode="numeric"') : '') +
+    field('cr_n', 'หมายเหตุ', c.note || '') + '<button class="btn" id="cr_s">บันทึก</button>' + (c.id ? '<button class="btn danger" id="cr_del">ลบ</button>' : '') + '<button class="btn ghost" data-close>ยกเลิก</button>', (el, close) => {
+    $('#cr_s', el).onclick = (e) => busy(e.currentTarget, async () => {
+      const title = $('#cr_t', el).value.trim();
+      if (!title) throw new Error('กรุณากรอก' + label);
+      const rec = { id: c.id || '', kind: k, title, fromDate: $('#cr_d', el).value, note: $('#cr_n', el).value };
+      if (k === 'salary') { rec.amount = num($('#cr_a', el).value); if (rec.amount <= 0) throw new Error('กรุณากรอกเงินเดือน'); }
+      if (k === 'decoration') rec.yearsToNext = num($('#cr_y', el).value);
+      await api('saveRecord', { table: 'Career', record: rec });
+      await refresh(); close(); (done || (() => render(true)))();
+    }, 'บันทึกแล้ว').catch(() => {});
+    const del = $('#cr_del', el);
+    if (del) del.onclick = () => busy(del, async () => { await api('deleteRecord', { table: 'Career', id: c.id }); await refresh(); close(); (done || (() => render(true)))(); }, 'ลบแล้ว').catch(() => {});
+  });
+}
+function mountCareer(el) {
+  const me = $('#pf_me', el); if (me) me.onclick = () => editMe();
+  $$('[data-addc]', el).forEach(b => b.onclick = () => editCareer({ kind: b.dataset.addc }));
+  $$('[data-editc]', el).forEach(b => b.onclick = () => editCareer((App.data.career || []).find(c => c.id === b.dataset.editc)));
+}
+
+
 /* ===== ตั้งค่า ===== */
 route('settings', {
   form: true,
@@ -1780,6 +2507,9 @@ route('settings', {
   html() {
     const s = (App.data && App.data.settings) || {};
     return topbar('ตั้งค่า', '#/profile') +
+      '<div class="box">' + row({ icon: 'event_repeat', title: 'รายการประจำ', sub: 'เพิ่ม แก้ไข ปรับยอด ตัดรายการ', href: '#/recurring' }) +
+      row({ icon: 'account_balance', title: 'บัญชีผ่อน & สะสม', sub: 'งวดที่เหลือ แผนออม แผนโป๊ะหนี้', href: '#/plans' }) +
+      row({ icon: 'input', title: 'ยอดยกมา', sub: 'กรอกยอดเริ่มต้นจากระบบเดิม (ครั้งเดียว)', href: '#/opening' }) + '</div>' +
       '<div class="box pad" style="display:flex;flex-direction:column;gap:14px"><h2 style="margin:0;font-size:17px">โลโก้แอป</h2>' +
       '<div class="row-flex" style="gap:16px">' + Logo.html(96, 'alt="โลโก้ปัจจุบัน"') + '<div><div class="t">' + (Logo.isCustom() ? 'โลโก้ของคุณ' : 'โลโก้เริ่มต้น') + '</div><div class="s">ใช้ที่หน้าล็อก ไอคอนแท็บ และไอคอน iPhone</div></div></div>' +
       '<button type="button" class="btn" id="st_logo"><span class="ms" aria-hidden="true">add_photo_alternate</span>เปลี่ยนโลโก้</button>' +
@@ -1794,7 +2524,8 @@ route('settings', {
       row({ icon: 'auto_awesome', title: 'Gemini อ่านสลิป', sub: s.hasGemini ? 'พร้อมใช้งาน' : 'ยังไม่ได้ตั้งค่า (รัน setGeminiKey ใน Apps Script)' }) +
       row({ icon: 'sync', title: 'โหลดข้อมูลใหม่ทั้งหมด', sub: 'ใช้เมื่อแก้ข้อมูลใน Google Sheet โดยตรง', attrs: 'id="st_reload"' }) +
       row({ icon: 'logout', title: 'ออกจากระบบเครื่องนี้', sub: 'ครั้งหน้าต้องใส่ PIN ใหม่', attrs: 'id="st_conn"' }) + '</div>' +
-      '<div class="s" style="text-align:center">เวอร์ชันหน้าเว็บ ' + APP_VERSION + (App.data ? ' · หลังบ้าน ' + esc(App.data.version) : '') + '</div>';
+      versionWarnHtml() +
+      '<div class="box">' + row({ icon: 'info', title: 'เวอร์ชัน ' + APP_VERSION, sub: 'หน้าเว็บ ' + APP_VERSION + (App.data ? ' · หลังบ้าน ' + App.data.version + (versionMismatch() ? ' (ไม่ตรงกัน)' : ' ✓') : '') + ' · แตะดูประวัติ', attrs: 'id="st_ver"' }) + '</div>';
   },
   mount(p, el) {
     $('#st_bio', el).onclick = async () => {
@@ -1812,6 +2543,8 @@ route('settings', {
       }, 'เปลี่ยน PIN แล้ว');
     });
     $('#st_lock', el).onclick = () => Lock.close();
+    $('#st_ver', el).onclick = () => sheet('<h2>ประวัติเวอร์ชัน</h2>' + CHANGELOG.map((c, i) => '<div class="tl" style="cursor:default;padding:10px 0"><span class="dot' + (i ? '' : ' now') + '"></span><span class="grow"><span class="t">' + c[0] + ' · ' + c[1] + (c[0] === APP_VERSION ? ' (ใช้อยู่)' : '') + '</span><span class="s">' + esc(c[2]) + '</span></span></div>').join('') +
+      '<button class="btn ghost" data-close>ปิด</button>');
     // เปลี่ยนโลโก้: เลือกรูป → ปรับ → บันทึกขึ้น Drive + เก็บในเครื่อง
     $('#st_logo', el).onclick = async (e) => {
       const btn = e.currentTarget;
